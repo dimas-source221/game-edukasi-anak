@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGame - Petualangan Belajar Anak SD</title>
+    <meta name="description" content="Game edukasi interaktif untuk anak SD - Numerik, Logika, Spasial, Memori, Bahasa Indonesia, IPA, dan Sejarah">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #A8E6CF;
+            --accent: #FF6B6B;
+            --yellow: #FECA57;
+            --blue: #48DBFB;
+            --green: #1DD1A1;
+            --purple: #5F27CD;
+            --orange: #FF9F43;
+            --pink: #FF6B9D;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-cool: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-rainbow: linear-gradient(135deg, #ff6b6b 0%, #feca57 25%, #1dd1a1 50%, #48dbfb 75%, #ff9ff3 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 15s infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            width: 500px;
+            max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: bounceIn 0.8s ease;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .game-title {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 10px;
+            animation: rainbow 3s infinite;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        @keyframes rainbow {
+            0% { color: #FF6B6B; }
+            25% { color: #FECA57; }
+            50% { color: #1DD1A1; }
+            75% { color: #48DBFB; }
+            100% { color: #FF6B6B; }
+        }
+
+        .game-subtitle {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 3px solid var(--primary);
+            border-radius: 50px;
+            font-size: 18px;
+            margin: 20px 0;
+            outline: none;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .login-input:focus {
+            border-color: var(--accent);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(108, 92, 231, 0.6);
+        }
+
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .login-btn:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .game-container {
+            background: #f0f0f0;
+            border-radius: 30px;
+            width: 1400px;
+            max-width: 95vw;
+            height: 90vh;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        .game-header {
+            background: var(--gradient);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .player-id-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .player-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-icon {
+            font-size: 24px;
+        }
+
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .countdown-number {
+            font-size: 200px;
+            font-weight: bold;
+            color: white;
+            animation: countdownAnim 1s ease;
+            text-shadow: 0 0 30px rgba(255,255,255,0.8);
+        }
+
+        @keyframes countdownAnim {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .countdown-text {
+            font-size: 50px;
+            color: var(--yellow);
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            animation: bounceIn 0.8s ease;
+            max-width: 90vw;
+        }
+
+        .game-over-title {
+            font-size: 50px;
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .game-over-score {
+            font-size: 80px;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .admin-panel {
+            background: white;
+            padding: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .admin-title {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-btn {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            background: #5a4bd1;
+            transform: scale(1.05);
+        }
+
+        .admin-btn.active {
+            background: var(--green);
+        }
+
+        .room-selection {
+            padding: 20px;
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .room-title {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .rooms-grid {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .room-card {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-color: var(--primary);
+        }
+
+        .room-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .room-card.special {
+            background: var(--gradient-warm);
+            color: white;
+            border: 3px solid var(--orange);
+        }
+
+        .room-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .room-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .room-card.special .room-name {
+            color: white;
+        }
+
+        .room-capacity {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .room-card.special .room-capacity {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .room-players {
+            margin-top: 10px;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .room-lock-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+        }
+
+        .players-list-container {
+            background: white;
+            padding: 15px;
+            margin: 15px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .players-list-title {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .player-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .player-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .player-card-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 10px;
+        }
+
+        .player-card-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .player-card-id {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .player-card-score {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .player-card-status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .question-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .question-category {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--yellow);
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .question-timer {
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .option-btn.correct {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+            animation: correctPulse 0.5s;
+        }
+
+        .option-btn.wrong {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            animation: wrongShake 0.5s;
+        }
+
+        @keyframes correctPulse {
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes wrongShake {
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .numeric-input-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .numeric-input {
+            flex: 1;
+            padding: 15px;
+            font-size: 24px;
+            border: 3px solid var(--primary);
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+        }
+
+        .submit-numeric {
+            padding: 15px 30px;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-numeric:hover {
+            background: #0fb889;
+            transform: scale(1.05);
+        }
+
+        .leaderboard {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-title {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .leaderboard-list {
+            list-style: none;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .leaderboard-item:hover {
+            background: #f8f9fa;
+        }
+
+        .rank {
+            font-weight: bold;
+            font-size: 20px;
+            width: 40px;
+        }
+
+        .rank-1 { color: #FFD700; }
+        .rank-2 { color: #C0C0C0; }
+        .rank-3 { color: #CD7F32; }
+
+        .player-rank-name {
+            flex: 1;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        .player-rank-score {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 3s linear;
+            z-index: 9999;
+        }
+
+        @keyframes confettiFall {
+            to { transform: translateY(100vh) rotate(720deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 400px;
+            max-width: 90vw;
+            text-align: center;
+        }
+
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9998;
+            background: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            font-size: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                max-width: 100vw;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rooms-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .game-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+
+            .countdown-number {
+                font-size: 100px;
+            }
+
+            .game-over-score {
+                font-size: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shape" style="width: 100px; height: 100px; background: #FF6B6B; top: 10%; left: 10%;"></div>
+        <div class="floating-shape" style="width: 150px; height: 150px; background: #FECA57; top: 60%; left: 70%;"></div>
+        <div class="floating-shape" style="width: 80px; height: 80px; background: #1DD1A1; top: 30%; left: 50%;"></div>
+        <div class="floating-shape" style="width: 120px; height: 120px; background: #48DBFB; top: 70%; left: 20%;"></div>
+        <div class="floating-shape" style="width: 90px; height: 90px; background: #FF9FF3; top: 40%; left: 80%;"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="game-title">🎮 EduGame</div>
+        <div class="game-subtitle">Petualangan Belajar Seru untuk Anak SD!</div>
+        <input type="text" id="playerName" class="login-input" placeholder="Masukkan Nama Lengkap Kamu" maxlength="30">
+        <button class="login-btn" onclick="login()">🚀 Mulai Petualangan!</button>
+        <p style="margin-top: 20px; color: #999; font-size: 14px;">
+            👨‍🏫 Login Admin? <a href="#" onclick="showAdminLogin(); return false;" style="color: var(--primary);">Klik di sini</a>
+        </p>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer" class="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <div class="player-info">
+                <div class="player-avatar" id="avatar">A</div>
+                <div>
+                    <h3 id="displayName">Player</h3>
+                    <small>ID: <span id="playerId" class="player-id-badge">-</span></small>
+                    <small>Kelas: <span id="playerGrade">1</span></small>
+                </div>
+            </div>
+            <div class="player-stats">
+                <div class="stat-badge">
+                    <span class="stat-icon">⭐</span>
+                    <span>Poin: <strong id="score">0</strong></span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-icon">🏆</span>
+                    <span>Peringkat: <strong id="rank">-</strong></span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-icon">📝</span>
+                    <span>Soal: <strong id="questionNumber">0/0</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="admin-panel" style="display: none;">
+            <div class="admin-title">👨‍🏫 Panel Admin KIBSA</div>
+            <div class="admin-controls" id="adminControls"></div>
+        </div>
+
+        <!-- Room Selection -->
+        <div class="room-selection" id="roomSelection">
+            <div class="room-title">🎯 Pilih Room Pertandingan!</div>
+            <div class="rooms-grid" id="roomsGrid"></div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area" id="gameArea"></div>
+    </div>
+
+    <!-- Countdown Overlay -->
+    <div id="countdownOverlay" class="countdown-overlay">
+        <div id="countdownNumber" class="countdown-number">5</div>
+        <div id="countdownText" class="countdown-text">Bersiap!</div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="gameOverOverlay" class="game-over-overlay">
+        <div class="game-over-content">
+            <div class="game-over-title">🏁 GAME END!</div>
+            <div class="game-over-score" id="finalScore">0</div>
+            <p style="font-size: 24px; margin-bottom: 20px;">Poin Kamu</p>
+            <button class="login-btn" onclick="closeGameOver()" style="width: auto; padding: 15px 40px;">
+                🔄 Kembali ke Room
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px;">👨‍🏫 Login Admin KIBSA</h3>
+            <input type="text" id="adminUsername" class="login-input" placeholder="Username">
+            <input type="password" id="adminPassword" class="login-input" placeholder="Password">
+            <button class="login-btn" onclick="adminLogin()">Login Admin</button>
+            <button style="margin-top: 10px; width: 100%; padding: 10px; background: #ddd; border: none; border-radius: 10px; cursor: pointer;" onclick="hideAdminLogin()">Batal</button>
+        </div>
+    </div>
+
+    <!-- Music Control -->
+    <div class="music-control" onclick="toggleMusic()" id="musicControl">🔊</div>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGvByjkM0gNyPH2DaaOgt9Z905BbDpZ7U",
+            authDomain: "game-edukasi-anak-ffce4.firebaseapp.com",
+            databaseURL: "https://game-edukasi-anak-ffce4-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "game-edukasi-anak-ffce4",
+            storageBucket: "game-edukasi-anak-ffce4.firebasestorage.app",
+            messagingSenderId: "6376241471",
+            appId: "1:6376241471:web:9dd40158a1e4164091fb8a"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const realtimeDb = firebase.database();
+        console.log('✅ Firebase initialized successfully');
+
+        // ============================================
+        // GAME STATE
+        // ============================================
+        let currentPlayer = null;
+        let currentRoom = null;
+        let currentQuestion = null;
+        let score = 0;
+        let rank = 0;
+        let isAdmin = false;
+        let currentQuestionIndex = 0;
+        let totalQuestions = 0;
+        let questionTimeLeft = 30;
+        let playerIdCounter = 1;
+        let playersInRooms = {};
+        let openRooms = {};
+        let gameStarted = false;
+        let musicEnabled = true;
+        let questionTimer = null;
+        let countdownInterval = null;
+        let currentGameRoom = null;
+        let soundContext = null;
+
+        // Room Configuration
+        const roomConfig = {
+            1: { name: "Room 1", maxPlayers: 100, totalQuestions: 15 },
+            2: { name: "Room 2", maxPlayers: 100, totalQuestions: 20 },
+            3: { name: "Room 3", maxPlayers: 100, totalQuestions: 30 },
+            4: { name: "Room 4", maxPlayers: 100, totalQuestions: 40 },
+            'A': { name: "Room A", maxPlayers: 100, totalQuestions: 25, special: true },
+            'B': { name: "Room B", maxPlayers: 100, totalQuestions: 25, special: true },
+            'C': { name: "Room C", maxPlayers: 100, totalQuestions: 25, special: true }
+        };
+
+        // Admin credentials
+        const adminCredentials = {
+            username: 'KIBSA',
+            password: 'Kibsa2026zzz'
+        };
+
+        // ============================================
+        // QUESTION BANK
+        // ============================================
+        const questionBank = {
+            numerik: {
+                1: [
+                    { question: "Berapa hasil 5 + 3?", options: ["6", "7", "8", "9"], correct: 2, type: "multiple" },
+                    { question: "Berapa jumlah jari di satu tangan?", options: ["4", "5", "6", "10"], correct: 1, type: "multiple" },
+                    { question: "Berapa hasil 10 - 4?", options: ["5", "6", "7", "8"], correct: 1, type: "multiple" },
+                    { question: "Angka setelah 7 adalah?", options: ["6", "7", "8", "9"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 2 + 2?", correct: "4", type: "numeric" },
+                    { question: "Berapa hasil 3 + 1?", correct: "4", type: "numeric" },
+                    { question: "Berapa hasil 5 - 2?", correct: "3", type: "numeric" },
+                    { question: "Berapa hasil 1 + 1?", correct: "2", type: "numeric" }
+                ],
+                2: [
+                    { question: "Berapa hasil 12 - 7?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" },
+                    { question: "15 + 25 = ?", options: ["30", "35", "40", "45"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 4 x 5?", options: ["15", "20", "25", "30"], correct: 1, type: "multiple" },
+                    { question: "Berapa hasil 20 : 4?", options: ["3", "4", "5", "6"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 3 x 3?", correct: "9", type: "numeric" },
+                    { question: "Berapa hasil 10 + 15?", correct: "25", type: "numeric" },
+                    { question: "Berapa hasil 18 - 9?", correct: "9", type: "numeric" },
+                    { question: "Berapa hasil 6 x 2?", correct: "12", type: "numeric" }
+                ],
+                3: [
+                    { question: "Berapa hasil 8 x 6?", options: ["42", "46", "48", "50"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 45 : 5?", options: ["7", "8", "9", "10"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 100 - 25?", options: ["65", "70", "75", "80"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 7 x 7?", options: ["42", "47", "49", "52"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 100 - 25?", correct: "75", type: "numeric" },
+                    { question: "Berapa hasil 7 x 7?", correct: "49", type: "numeric" },
+                    { question: "Berapa hasil 56 : 8?", correct: "7", type: "numeric" },
+                    { question: "Berapa hasil 23 + 18?", correct: "41", type: "numeric" }
+                ],
+                4: [
+                    { question: "Berapa hasil 72 : 8?", options: ["7", "8", "9", "10"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 250 + 150?", options: ["300", "350", "400", "450"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 15 x 4?", options: ["50", "55", "60", "65"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 1/2 + 1/4?", options: ["1/4", "2/4", "3/4", "1"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 15 x 4?", correct: "60", type: "numeric" },
+                    { question: "Berapa hasil 144 : 12?", correct: "12", type: "numeric" },
+                    { question: "Berapa hasil 3/4 + 1/4?", correct: "1", type: "numeric" },
+                    { question: "Berapa hasil 325 - 150?", correct: "175", type: "numeric" }
+                ],
+                5: [
+                    { question: "Berapa hasil 125 + 75?", options: ["150", "175", "200", "225"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 500 : 5?", options: ["50", "100", "150", "200"], correct: 1, type: "multiple" },
+                    { question: "Berapa hasil 15 x 15?", options: ["200", "215", "225", "250"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 3/5 + 1/5?", options: ["2/5", "3/5", "4/5", "1"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 500 : 5?", correct: "100", type: "numeric" },
+                    { question: "Berapa hasil 15 x 15?", correct: "225", type: "numeric" },
+                    { question: "Berapa hasil 1/2 + 1/3?", correct: "5/6", type: "numeric" },
+                    { question: "Berapa hasil 750 - 275?", correct: "475", type: "numeric" }
+                ],
+                6: [
+                    { question: "Berapa hasil 144 : 12?", options: ["10", "11", "12", "13"], correct: 2, type: "multiple" },
+                    { question: "Berapa hasil 13 x 13?", options: ["159", "169", "179", "189"], correct: 1, type: "multiple" },
+                    { question: "Berapa hasil 25% dari 200?", options: ["25", "50", "75", "100"], correct: 1, type: "multiple" },
+                    { question: "Berapa hasil 2/3 x 3/4?", options: ["1/2", "1/3", "2/3", "3/4"], correct: 0, type: "multiple" },
+                    { question: "Berapa hasil 13 x 13?", correct: "169", type: "numeric" },
+                    { question: "Berapa hasil 1000 : 25?", correct: "40", type: "numeric" },
+                    { question: "Berapa hasil 3/4 x 2/3?", correct: "1/2", type: "numeric" },
+                    { question: "Berapa hasil 1,5 x 2?", correct: "3", type: "numeric" }
+                ]
+            },
+            logika: {
+                1: [
+                    { question: "Mana yang lebih besar?", options: ["3", "5", "2", "4"], correct: 1, type: "multiple" },
+                    { question: "Mana yang lebih kecil?", options: ["1", "3", "5", "7"], correct: 0, type: "multiple" },
+                    { question: "Urutan dari kecil: 5, 2, 8, 1", options: ["1,2,5,8", "1,5,2,8", "2,1,5,8", "8,5,2,1"], correct: 0, type: "multiple" },
+                    { question: "Mana yang lebih tinggi?", options: ["Kucing", "Jerapah", "Ayam", "Kambing"], correct: 1, type: "multiple" },
+                    { question: "Urutan angka setelah 3?", correct: "4", type: "numeric" },
+                    { question: "Angka sebelum 10?", correct: "9", type: "numeric" },
+                    { question: "Berapa angka 5 jika ditambah 2?", correct: "7", type: "numeric" },
+                    { question: "Berapa angka 8 jika dikurang 3?", correct: "5", type: "numeric" }
+                ],
+                2: [
+                    { question: "Jika A=1, B=2, C=3, maka C+B = ?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" },
+                    { question: "Lanjutkan: 10, 20, 30, ...", options: ["35", "40", "45", "50"], correct: 1, type: "multiple" },
+                    { question: "Jika hari ini Senin, besok adalah?", options: ["Minggu", "Selasa", "Rabu", "Kamis"], correct: 1, type: "multiple" },
+                    { question: "Mana yang paling jauh?", options: ["Jakarta-Bandung", "Jakarta-Surabaya", "Jakarta-Bogor", "Jakarta-Bekasi"], correct: 1, type: "multiple" },
+                    { question: "10, 20, 30, ..., 50", correct: "40", type: "numeric" },
+                    { question: "Jika A=1, maka F=?", correct: "6", type: "numeric" },
+                    { question: "5, 10, 15, ..., 25", correct: "20", type: "numeric" },
+                    { question: "2, 4, 6, ..., 10", correct: "8", type: "numeric" }
+                ],
+                3: [
+                    { question: "Lanjutkan pola: 2, 4, 6, 8, ...", options: ["9", "10", "11", "12"], correct: 1, type: "multiple" },
+                    { question: "Jika x = 5, maka x + 3 = ?", options: ["6", "7", "8", "9"], correct: 2, type: "multiple" },
+                    { question: "Urutan dari besar: 3, 7, 1, 9", options: ["1,3,7,9", "9,7,3,1", "7,9,3,1", "3,1,7,9"], correct: 1, type: "multiple" },
+                    { question: "Pola: 1, 3, 5, 7, ...", options: ["8", "9", "10", "11"], correct: 1, type: "multiple" },
+                    { question: "3, 6, 9, ..., 15", correct: "12", type: "numeric" },
+                    { question: "Jika x=5, maka 2x=?", correct: "10", type: "numeric" },
+                    { question: "10, 20, 30, ..., 50", correct: "40", type: "numeric" },
+                    { question: "4, 8, 12, ..., 20", correct: "16", type: "numeric" }
+                ],
+                4: [
+                    { question: "Jika 3x = 12, maka x = ?", options: ["2", "3", "4", "6"], correct: 2, type: "multiple" },
+                    { question: "Jika x=3, maka 2x+5 = ?", options: ["8", "10", "11", "13"], correct: 2, type: "multiple" },
+                    { question: "Lanjutkan: 1, 4, 9, 16, ...", options: ["20", "24", "25", "36"], correct: 2, type: "multiple" },
+                    { question: "Jika a+b=10 dan a=4, maka b=?", options: ["4", "5", "6", "7"], correct: 2, type: "multiple" },
+                    { question: "2, 4, 8, 16, ...", correct: "32", type: "numeric" },
+                    { question: "Jika a=6, maka a+4=?", correct: "10", type: "numeric" },
+                    { question: "3, 9, 27, ...", correct: "81", type: "numeric" },
+                    { question: "Jika x=8, maka x/2=?", correct: "4", type: "numeric" }
+                ],
+                5: [
+                    { question: "Lanjutkan pola: 1, 3, 6, 10, ...", options: ["12", "14", "15", "16"], correct: 2, type: "multiple" },
+                    { question: "Pola: 1, 4, 9, 16, ...", options: ["20", "24", "25", "36"], correct: 2, type: "multiple" },
+                    { question: "Jika 2a+3=11, maka a=?", options: ["3", "4", "5", "6"], correct: 1, type: "multiple" },
+                    { question: "Deret: 3, 6, 12, 24, ...", options: ["36", "42", "48", "50"], correct: 2, type: "multiple" },
+                    { question: "1, 3, 6, 10, 15, ...", correct: "21", type: "numeric" },
+                    { question: "Jika 3a=27, maka a=?", correct: "9", type: "numeric" },
+                    { question: "5, 10, 20, 40, ...", correct: "80", type: "numeric" },
+                    { question: "Jika x+5=12, maka x=?", correct: "7", type: "numeric" }
+                ],
+                6: [
+                    { question: "Jika a+b=10 dan a=4, maka b = ?", options: ["4", "5", "6", "7"], correct: 2, type: "multiple" },
+                    { question: "Jika 2a+3=11, maka a = ?", options: ["3", "4", "5", "6"], correct: 1, type: "multiple" },
+                    { question: "Deret: 1, 1, 2, 3, 5, 8, ...", options: ["11", "12", "13", "14"], correct: 2, type: "multiple" },
+                    { question: "Jika x/6=7, maka x=?", options: ["36", "42", "48", "54"], correct: 1, type: "multiple" },
+                    { question: "2, 3, 5, 7, 11, ...", correct: "13", type: "numeric" },
+                    { question: "Jika 2x+4=20, maka x=?", correct: "8", type: "numeric" },
+                    { question: "1, 4, 9, 16, 25, ...", correct: "36", type: "numeric" },
+                    { question: "Jika a=8 dan b=12, maka a+b=?", correct: "20", type: "numeric" }
+                ]
+            },
+            spasial: {
+                1: [
+                    { question: "Berapa sisi segitiga?", options: ["2", "3", "4", "5"], correct: 1, type: "multiple" },
+                    { question: "Berapa sisi persegi?", options: ["2", "3", "4", "5"], correct: 2, type: "multiple" },
+                    { question: "Bentuk roda adalah?", options: ["Persegi", "Segitiga", "Lingkaran", "Persegi Panjang"], correct: 2, type: "multiple" },
+                    { question: "Bentuk buku tulis?", options: ["Lingkaran", "Segitiga", "Persegi Panjang", "Oval"], correct: 2, type: "multiple" },
+                    { question: "Berapa sisi lingkaran?", correct: "0", type: "numeric" },
+                    { question: "Berapa sudut persegi?", correct: "4", type: "numeric" },
+                    { question: "Berapa sisi segitiga?", correct: "3", type: "numeric" },
+                    { question: "Berapa sisi persegi?", correct: "4", type: "numeric" }
+                ],
+                2: [
+                    { question: "Berapa sisi persegi panjang?", options: ["2", "3", "4", "5"], correct: 2, type: "multiple" },
+                    { question: "Bentuk uang koin?", options: ["Persegi", "Lingkaran", "Segitiga", "Persegi Panjang"], correct: 1, type: "multiple" },
+                    { question: "Bentuk atap rumah?", options: ["Lingkaran", "Segitiga", "Persegi", "Oval"], correct: 1, type: "multiple" },
+                    { question: "Bentuk pintu?", options: ["Lingkaran", "Segitiga", "Persegi Panjang", "Oval"], correct: 2, type: "multiple" },
+                    { question: "Berapa sisi persegi panjang?", correct: "4", type: "numeric" },
+                    { question: "Berapa sudut persegi panjang?", correct: "4", type: "numeric" },
+                    { question: "Berapa sisi lingkaran?", correct: "0", type: "numeric" },
+                    { question: "Berapa sisi segitiga?", correct: "3", type: "numeric" }
+                ],
+                3: [
+                    { question: "Berapa sisi kubus?", options: ["4", "6", "8", "12"], correct: 1, type: "multiple" },
+                    { question: "Berapa sudut kubus?", options: ["4", "6", "8", "12"], correct: 2, type: "multiple" },
+                    { question: "Bentuk kaleng susu?", options: ["Kubus", "Tabung", "Bola", "Kerucut"], correct: 1, type: "multiple" },
+                    { question: "Bentuk bola basket?", options: ["Kubus", "Balok", "Bola", "Tabung"], correct: 2, type: "multiple" },
+                    { question: "Berapa sisi lingkaran?", correct: "0", type: "numeric" },
+                    { question: "Berapa sudut kubus?", correct: "8", type: "numeric" },
+                    { question: "Berapa sisi tabung?", correct: "3", type: "numeric" },
+                    { question: "Berapa sisi bola?", correct: "1", type: "numeric" }
+                ],
+                4: [
+                    { question: "Berapa sudut segilima?", options: ["3", "4", "5", "6"], correct: 2, type: "multiple" },
+                    { question: "Luas persegi sisi 5 cm = ?", options: ["10", "15", "20", "25"], correct: 3, type: "multiple" },
+                    { question: "Keliling persegi sisi 4 cm = ?", options: ["8", "12", "16", "20"], correct: 2, type: "multiple" },
+                    { question: "Bangun datar tanpa sudut?", options: ["Persegi", "Segitiga", "Lingkaran", "Persegi Panjang"], correct: 2, type: "multiple" },
+                    { question: "Berapa sudut persegi?", correct: "4", type: "numeric" },
+                    { question: "Luas persegi sisi 6?", correct: "36", type: "numeric" },
+                    { question: "Keliling persegi sisi 3?", correct: "12", type: "numeric" },
+                    { question: "Berapa diagonal persegi panjang?", correct: "2", type: "numeric" }
+                ],
+                5: [
+                    { question: "Berapa sisi balok?", options: ["4", "6", "8", "12"], correct: 1, type: "multiple" },
+                    { question: "Volume kubus sisi 3 cm = ?", options: ["9", "18", "27", "36"], correct: 2, type: "multiple" },
+                    { question: "Luas lingkaran jari-jari 7 cm = ?", options: ["147", "154", "161", "168"], correct: 1, type: "multiple" },
+                    { question: "Berapa sisi tabung?", options: ["2", "3", "4", "5"], correct: 1, type: "multiple" },
+                    { question: "Berapa diagonal persegi?", correct: "2", type: "numeric" },
+                    { question: "Volume kubus sisi 4?", correct: "64", type: "numeric" },
+                    { question: "Luas persegi sisi 8?", correct: "64", type: "numeric" },
+                    { question: "Berapa sisi prisma segitiga?", correct: "5", type: "numeric" }
+                ],
+                6: [
+                    { question: "Volume kubus sisi 3 cm = ?", options: ["9", "18", "27", "36"], correct: 2, type: "multiple" },
+                    { question: "Volume balok 2x3x4 = ?", options: ["12", "18", "24", "36"], correct: 2, type: "multiple" },
+                    { question: "Luas permukaan kubus sisi 5 = ?", options: ["100", "125", "150", "175"], correct: 2, type: "multiple" },
+                    { question: "Berapa rusuk kubus?", options: ["6", "8", "10", "12"], correct: 3, type: "multiple" },
+                    { question: "Berapa sisi tabung?", correct: "3", type: "numeric" },
+                    { question: "Volume kubus sisi 5?", correct: "125", type: "numeric" },
+                    { question: "Luas persegi sisi 10?", correct: "100", type: "numeric" },
+                    { question: "Berapa rusuk balok?", correct: "12", type: "numeric" }
+                ]
+            },
+            memori: {
+                1: [
+                    { question: "Warna pelangi pertama?", options: ["Merah", "Jingga", "Kuning", "Hijau"], correct: 0, type: "multiple" },
+                    { question: "Hewan yang berkokok?", options: ["Kucing", "Ayam", "Sapi", "Kambing"], correct: 1, type: "multiple" },
+                    { question: "Huruf pertama alfabet?", options: ["A", "B", "C", "D"], correct: 0, type: "multiple" },
+                    { question: "Ingat: 2, 4, 6. Angka pertama?", options: ["2", "4", "6", "8"], correct: 0, type: "multiple" },
+                    { question: "Sebutkan angka setelah 7?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah hari dalam seminggu?", correct: "7", type: "numeric" },
+                    { question: "Berapa jumlah jari tangan kanan?", correct: "5", type: "numeric" },
+                    { question: "Berapa jumlah mata?", correct: "2", type: "numeric" }
+                ],
+                2: [
+                    { question: "Urutan: A, B, C, D. Huruf kedua adalah?", options: ["A", "B", "C", "D"], correct: 1, type: "multiple" },
+                    { question: "Hari setelah Senin?", options: ["Minggu", "Selasa", "Rabu", "Kamis"], correct: 1, type: "multiple" },
+                    { question: "Bulan setelah Januari?", options: ["Desember", "Februari", "Maret", "April"], correct: 1, type: "multiple" },
+                    { question: "Warna daun biasanya?", options: ["Merah", "Biru", "Hijau", "Kuning"], correct: 2, type: "multiple" },
+                    { question: "Huruf setelah G?", correct: "H", type: "numeric" },
+                    { question: "Bulan ke-3?", correct: "Maret", type: "numeric" },
+                    { question: "Hari ke-2?", correct: "Selasa", type: "numeric" },
+                    { question: "Berapa jumlah bulan dalam setahun?", correct: "12", type: "numeric" }
+                ],
+                3: [
+                    { question: "Hafalkan: 2, 4, 6, 8. Angka ketiga?", options: ["2", "4", "6", "8"], correct: 2, type: "multiple" },
+                    { question: "Bulan setelah Maret?", options: ["Februari", "April", "Mei", "Juni"], correct: 1, type: "multiple" },
+                    { question: "Hari sebelum Jumat?", options: ["Rabu", "Kamis", "Sabtu", "Minggu"], correct: 1, type: "multiple" },
+                    { question: "Angka antara 3 dan 5?", options: ["2", "4", "6", "7"], correct: 1, type: "multiple" },
+                    { question: "Bulan ke-5 dalam setahun?", correct: "Mei", type: "numeric" },
+                    { question: "Hari ke-3 dalam seminggu?", correct: "Rabu", type: "numeric" },
+                    { question: "Angka setelah 15?", correct: "16", type: "numeric" },
+                    { question: "Berapa jumlah jari kaki?", correct: "10", type: "numeric" }
+                ],
+                4: [
+                    { question: "Presiden pertama Indonesia?", options: ["Soeharto", "Habibie", "Soekarno", "SBY"], correct: 2, type: "multiple" },
+                    { question: "Ibu kota Indonesia?", options: ["Bandung", "Surabaya", "Jakarta", "Medan"], correct: 2, type: "multiple" },
+                    { question: "Pancasila sila ke-3?", options: ["Ketuhanan", "Kemanusiaan", "Persatuan", "Keadilan"], correct: 2, type: "multiple" },
+                    { question: "Hari ke-3 dalam seminggu?", options: ["Senin", "Selasa", "Rabu", "Kamis"], correct: 2, type: "multiple" },
+                    { question: "17 Agustus tahun berapa?", correct: "1945", type: "numeric" },
+                    { question: "Berapa sila Pancasila?", correct: "5", type: "numeric" },
+                    { question: "Berapa jumlah provinsi di Indonesia?", correct: "34", type: "numeric" },
+                    { question: "Angka sebelum 20?", correct: "19", type: "numeric" }
+                ],
+                5: [
+                    { question: "Proklamasi kemerdekaan Indonesia tahun?", options: ["1944", "1945", "1946", "1947"], correct: 1, type: "multiple" },
+                    { question: "Kerajaan Majapahit terletak di?", options: ["Jawa Timur", "Jawa Barat", "Sumatera", "Kalimantan"], correct: 0, type: "multiple" },
+                    { question: "Hari setelah Jumat?", options: ["Kamis", "Sabtu", "Minggu", "Senin"], correct: 1, type: "multiple" },
+                    { question: "Benua terbesar di dunia?", options: ["Afrika", "Amerika", "Asia", "Eropa"], correct: 2, type: "multiple" },
+                    { question: "Sumpah Pemuda tahun berapa?", correct: "1928", type: "numeric" },
+                    { question: "Berapa sila Pancasila?", correct: "5", type: "numeric" },
+                    { question: "17 Agustus tahun berapa?", correct: "1945", type: "numeric" },
+                    { question: "Berapa jumlah provinsi di Indonesia?", correct: "34", type: "numeric" }
+                ],
+                6: [
+                    { question: "Sumpah Pemuda tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 0, type: "multiple" },
+                    { question: "Hari Pahlawan tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 3, type: "multiple" },
+                    { question: "Deret Fibonacci: 1, 1, 2, 3, 5, 8, ...", options: ["11", "12", "13", "14"], correct: 2, type: "multiple" },
+                    { question: "Benua terkecil di dunia?", options: ["Afrika", "Australia", "Eropa", "Antartika"], correct: 1, type: "multiple" },
+                    { question: "Sumpah Pemuda tahun berapa?", correct: "1928", type: "numeric" },
+                    { question: "Berapa sila Pancasila?", correct: "5", type: "numeric" },
+                    { question: "17 Agustus tahun berapa?", correct: "1945", type: "numeric" },
+                    { question: "Berapa jumlah pulau di Indonesia?", correct: "17000", type: "numeric" }
+                ]
+            },
+            bahasa: {
+                1: [
+                    { question: "Huruf pertama dalam alfabet?", options: ["A", "B", "C", "D"], correct: 0, type: "multiple" },
+                    { question: "Lawan kata 'besar'?", options: ["Tinggi", "Lebar", "Kecil", "Panjang"], correct: 2, type: "multiple" },
+                    { question: "Huruf vokal adalah?", options: ["A, B, C", "A, I, U", "B, C, D", "X, Y, Z"], correct: 1, type: "multiple" },
+                    { question: "Kata 'buku' terdiri dari berapa huruf?", options: ["3", "4", "5", "6"], correct: 1, type: "multiple" },
+                    { question: "Huruf setelah A?", correct: "B", type: "numeric" },
+                    { question: "Berapa huruf vokal?", correct: "5", type: "numeric" },
+                    { question: "Berapa huruf dalam alfabet?", correct: "26", type: "numeric" },
+                    { question: "Kata 'ibu' berapa huruf?", correct: "3", type: "numeric" }
+                ],
+                2: [
+                    { question: "Sinonim dari 'pintar'?", options: ["Bodoh", "Cerdas", "Malas", "Lambat"], correct: 1, type: "multiple" },
+                    { question: "Lawan kata 'besar'?", options: ["Tinggi", "Lebar", "Kecil", "Panjang"], correct: 2, type: "multiple" },
+                    { question: "Huruf kapital untuk?", options: ["Awal kalimat", "Akhir kalimat", "Tengah kalimat", "Semua kata"], correct: 0, type: "multiple" },
+                    { question: "Sinonim 'indah'?", options: ["Buruk", "Cantik", "Jelek", "Kotor"], correct: 1, type: "multiple" },
+                    { question: "Berapa huruf vokal?", correct: "5", type: "numeric" },
+                    { question: "Berapa huruf dalam kata 'sekolah'?", correct: "7", type: "numeric" },
+                    { question: "Berapa suku kata 'belajar'?", correct: "3", type: "numeric" },
+                    { question: "Berapa huruf konsonan?", correct: "21", type: "numeric" }
+                ],
+                3: [
+                    { question: "Sinonim 'cerdas'?", options: ["Bodoh", "Pintar", "Malas", "Lambat"], correct: 1, type: "multiple" },
+                    { question: "Kata 'memasak' kata dasarnya?", options: ["Masak", "Memasak", "Termasak", "Pemasak"], correct: 0, type: "multiple" },
+                    { question: "Kalimat tanya diakhiri tanda?", options: ["Titik", "Koma", "Tanya", "Seru"], correct: 2, type: "multiple" },
+                    { question: "Sinonim 'gembira'?", options: ["Sedih", "Senang", "Marah", "Takut"], correct: 1, type: "multiple" },
+                    { question: "Berapa suku kata 'belajar'?", correct: "3", type: "numeric" },
+                    { question: "Berapa huruf dalam kata 'Indonesia'?", correct: "9", type: "numeric" },
+                    { question: "Berapa kata dalam kalimat 'Saya belajar'?", correct: "2", type: "numeric" },
+                    { question: "Berapa huruf vokal dalam 'pendidikan'?", correct: "5", type: "numeric" }
+                ],
+                4: [
+                    { question: "Lawan kata 'rajin'?", options: ["Tekun", "Giat", "Malas", "Semangat"], correct: 2, type: "multiple" },
+                    { question: "Kata 'membaca' kata dasarnya?", options: ["Baca", "Membaca", "Terbaca", "Pembaca"], correct: 0, type: "multiple" },
+                    { question: "Paragraf terdiri dari?", options: ["Kalimat", "Huruf", "Kata", "Suku kata"], correct: 0, type: "multiple" },
+                    { question: "Sinonim 'pandai'?", options: ["Bodoh", "Cerdas", "Malas", "Lambat"], correct: 1, type: "multiple" },
+                    { question: "Berapa huruf dalam kata 'perpustakaan'?", correct: "12", type: "numeric" },
+                    { question: "Berapa suku kata 'pendidikan'?", correct: "4", type: "numeric" },
+                    { question: "Berapa kalimat minimal dalam paragraf?", correct: "3", type: "numeric" },
+                    { question: "Berapa kata dalam 'Saya suka membaca buku'?", correct: "4", type: "numeric" }
+                ],
+                5: [
+                    { question: "Cerita rakyat 'Malin Kundang' dari?", options: ["Jawa", "Sumatera", "Kalimantan", "Sulawesi"], correct: 1, type: "multiple" },
+                    { question: "Kata 'menulis' kata dasarnya?", options: ["Tulis", "Menulis", "Tertulis", "Penulis"], correct: 0, type: "multiple" },
+                    { question: "Sinonim 'pandai'?", options: ["Bodoh", "Cerdas", "Malas", "Lambat"], correct: 1, type: "multiple" },
+                    { question: "Lawan kata 'rajin'?", options: ["Tekun", "Giat", "Malas", "Semangat"], correct: 2, type: "multiple" },
+                    { question: "Berapa kata dalam 'Budi pergi ke sekolah'?", correct: "4", type: "numeric" },
+                    { question: "Berapa huruf dalam kata 'kebudayaan'?", correct: "10", type: "numeric" },
+                    { question: "Berapa suku kata 'pendidikan'?", correct: "4", type: "numeric" },
+                    { question: "Berapa kalimat minimal dalam paragraf?", correct: "3", type: "numeric" }
+                ],
+                6: [
+                    { question: "Cerita 'Timun Mas' dari?", options: ["Jawa Timur", "Jawa Barat", "Jawa Tengah", "Banten"], correct: 2, type: "multiple" },
+                    { question: "Cerita rakyat 'Malin Kundang' dari?", options: ["Jawa", "Sumatera", "Kalimantan", "Sulawesi"], correct: 1, type: "multiple" },
+                    { question: "Sinonim 'pandai'?", options: ["Bodoh", "Cerdas", "Malas", "Lambat"], correct: 1, type: "multiple" },
+                    { question: "Kata 'menulis' kata dasarnya?", options: ["Tulis", "Menulis", "Tertulis", "Penulis"], correct: 0, type: "multiple" },
+                    { question: "Berapa suku kata 'pendidikan'?", correct: "4", type: "numeric" },
+                    { question: "Berapa huruf dalam kata 'kebudayaan'?", correct: "10", type: "numeric" },
+                    { question: "Berapa kalimat minimal dalam paragraf?", correct: "3", type: "numeric" },
+                    { question: "Berapa kata dalam 'Budi pergi ke sekolah'?", correct: "4", type: "numeric" }
+                ]
+            },
+            ipa: {
+                1: [
+                    { question: "Hewan yang berkokok?", options: ["Kucing", "Ayam", "Sapi", "Kambing"], correct: 1, type: "multiple" },
+                    { question: "Bagian tubuh untuk melihat?", options: ["Hidung", "Telinga", "Mata", "Mulut"], correct: 2, type: "multiple" },
+                    { question: "Hewan yang terbang?", options: ["Kucing", "Ayam", "Burung", "Kambing"], correct: 2, type: "multiple" },
+                    { question: "Air jika dipanaskan menjadi?", options: ["Es", "Uap", "Air", "Embun"], correct: 1, type: "multiple" },
+                    { question: "Berapa jumlah kaki kucing?", correct: "4", type: "numeric" },
+                    { question: "Berapa jumlah mata manusia?", correct: "2", type: "numeric" },
+                    { question: "Berapa jumlah telinga?", correct: "2", type: "numeric" },
+                    { question: "Berapa jumlah hidung?", correct: "1", type: "numeric" }
+                ],
+                2: [
+                    { question: "Hewan yang hidup di air?", options: ["Kucing", "Ayam", "Ikan", "Kambing"], correct: 2, type: "multiple" },
+                    { question: "Benda langit yang bersinar di malam hari?", options: ["Matahari", "Bulan", "Bintang", "Awan"], correct: 2, type: "multiple" },
+                    { question: "Bagian tumbuhan untuk fotosintesis?", options: ["Akar", "Batang", "Daun", "Bunga"], correct: 2, type: "multiple" },
+                    { question: "Bagian tubuh untuk mendengar?", options: ["Hidung", "Telinga", "Mata", "Mulut"], correct: 1, type: "multiple" },
+                    { question: "Berapa jumlah kaki ayam?", correct: "2", type: "numeric" },
+                    { question: "Berapa jumlah sayap burung?", correct: "2", type: "numeric" },
+                    { question: "Berapa jumlah kaki sapi?", correct: "4", type: "numeric" },
+                    { question: "Berapa jumlah kaki kambing?", correct: "4", type: "numeric" }
+                ],
+                3: [
+                    { question: "Planet yang kita tinggali?", options: ["Mars", "Venus", "Bumi", "Jupiter"], correct: 2, type: "multiple" },
+                    { question: "Hewan yang berkembang biak dengan telur?", options: ["Kucing", "Ayam", "Sapi", "Kambing"], correct: 1, type: "multiple" },
+                    { question: "Sumber energi utama bumi?", options: ["Bulan", "Bintang", "Matahari", "Awan"], correct: 2, type: "multiple" },
+                    { question: "Air jika didinginkan menjadi?", options: ["Es", "Uap", "Air", "Embun"], correct: 0, type: "multiple" },
+                    { question: "Berapa jumlah planet di tata surya?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah kaki serangga?", correct: "6", type: "numeric" },
+                    { question: "Berapa jumlah kaki laba-laba?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah kaki kepiting?", correct: "10", type: "numeric" }
+                ],
+                4: [
+                    { question: "Proses tumbuhan membuat makanan?", options: ["Respirasi", "Fotosintesis", "Transpirasi", "Evaporasi"], correct: 1, type: "multiple" },
+                    { question: "Planet terbesar di tata surya?", options: ["Mars", "Venus", "Bumi", "Jupiter"], correct: 3, type: "multiple" },
+                    { question: "Hewan yang berkembang biak dengan telur?", options: ["Kucing", "Ayam", "Sapi", "Kambing"], correct: 1, type: "multiple" },
+                    { question: "Sumber energi utama bumi?", options: ["Bulan", "Bintang", "Matahari", "Awan"], correct: 2, type: "multiple" },
+                    { question: "Berapa jumlah kaki laba-laba?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah kaki kepiting?", correct: "10", type: "numeric" },
+                    { question: "Berapa jumlah planet di tata surya?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah kaki serangga?", correct: "6", type: "numeric" }
+                ],
+                5: [
+                    { question: "Alat pernapasan ikan?", options: ["Paru-paru", "Insang", "Kulit", "Trakea"], correct: 1, type: "multiple" },
+                    { question: "Hewan yang menyusui?", options: ["Ayam", "Bebek", "Sapi", "Burung"], correct: 2, type: "multiple" },
+                    { question: "Planet terbesar di tata surya?", options: ["Mars", "Venus", "Bumi", "Jupiter"], correct: 3, type: "multiple" },
+                    { question: "Proses tumbuhan membuat makanan?", options: ["Respirasi", "Fotosintesis", "Transpirasi", "Evaporasi"], correct: 1, type: "multiple" },
+                    { question: "Berapa jumlah kaki serangga?", correct: "6", type: "numeric" },
+                    { question: "Berapa jumlah kaki laba-laba?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah planet di tata surya?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah kaki kepiting?", correct: "10", type: "numeric" }
+                ],
+                6: [
+                    { question: "Organ tubuh untuk berpikir?", options: ["Jantung", "Paru-paru", "Otak", "Hati"], correct: 2, type: "multiple" },
+                    { question: "Proses perubahan wujud dari cair ke gas?", options: ["Membeku", "Mencair", "Menguap", "Mengembun"], correct: 2, type: "multiple" },
+                    { question: "Alat pernapasan ikan?", options: ["Paru-paru", "Insang", "Kulit", "Trakea"], correct: 1, type: "multiple" },
+                    { question: "Hewan yang menyusui?", options: ["Ayam", "Bebek", "Sapi", "Burung"], correct: 2, type: "multiple" },
+                    { question: "Berapa jumlah planet di tata surya?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah kaki serangga?", correct: "6", type: "numeric" },
+                    { question: "Berapa jumlah kaki laba-laba?", correct: "8", type: "numeric" },
+                    { question: "Berapa jumlah kaki kepiting?", correct: "10", type: "numeric" }
+                ]
+            },
+            sejarah: {
+                3: [
+                    { question: "Proklamasi kemerdekaan Indonesia tahun?", options: ["1944", "1945", "1946", "1947"], correct: 1, type: "multiple" },
+                    { question: "Presiden pertama Indonesia?", options: ["Soeharto", "Habibie", "Soekarno", "SBY"], correct: 2, type: "multiple" },
+                    { question: "Ibu kota Indonesia?", options: ["Bandung", "Surabaya", "Jakarta", "Medan"], correct: 2, type: "multiple" },
+                    { question: "Pancasila sila ke-3?", options: ["Ketuhanan", "Kemanusiaan", "Persatuan", "Keadilan"], correct: 2, type: "multiple" },
+                    { question: "17 Agustus tahun berapa?", correct: "1945", type: "numeric" },
+                    { question: "Berapa sila Pancasila?", correct: "5", type: "numeric" },
+                    { question: "Berapa jumlah provinsi di Indonesia?", correct: "34", type: "numeric" },
+                    { question: "Sumpah Pemuda tahun berapa?", correct: "1928", type: "numeric" }
+                ],
+                4: [
+                    { question: "Kerajaan Majapahit terletak di?", options: ["Jawa Timur", "Jawa Barat", "Sumatera", "Kalimantan"], correct: 0, type: "multiple" },
+                    { question: "Sumpah Pemuda tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 0, type: "multiple" },
+                    { question: "Hari Pahlawan tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 3, type: "multiple" },
+                    { question: "Presiden pertama Indonesia?", options: ["Soeharto", "Habibie", "Soekarno", "SBY"], correct: 2, type: "multiple" },
+                    { question: "Sumpah Pemuda tahun berapa?", correct: "1928", type: "numeric" },
+                    { question: "Berapa sila Pancasila?", correct: "5", type: "numeric" },
+                    { question: "17 Agustus tahun berapa?", correct: "1945", type: "numeric" },
+                    { question: "Berapa jumlah provinsi di Indonesia?", correct: "34", type: "numeric" }
+                ],
+                5: [
+                    { question: "Kerajaan Sriwijaya terletak di?", options: ["Jawa", "Sumatera", "Kalimantan", "Sulawesi"], correct: 1, type: "multiple" },
+                    { question: "Hari Pahlawan tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 3, type: "multiple" },
+                    { question: "Sumpah Pemuda tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 0, type: "multiple" },
+                    { question: "Kerajaan Majapahit terletak di?", options: ["Jawa Timur", "Jawa Barat", "Sumatera", "Kalimantan"], correct: 0, type: "multiple" },
+                    { question: "Sumpah Pemuda tahun berapa?", correct: "1928", type: "numeric" },
+                    { question: "Berapa sila Pancasila?", correct: "5", type: "numeric" },
+                    { question: "17 Agustus tahun berapa?", correct: "1945", type: "numeric" },
+                    { question: "Berapa jumlah pulau di Indonesia?", correct: "17000", type: "numeric" }
+                ],
+                6: [
+                    { question: "Perang Diponegoro dipimpin oleh?", options: ["Soekarno", "Diponegoro", "Sudirman", "Hatta"], correct: 1, type: "multiple" },
+                    { question: "Sumpah Pemuda tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 0, type: "multiple" },
+                    { question: "Hari Pahlawan tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "10 November"], correct: 3, type: "multiple" },
+                    { question: "Kerajaan Sriwijaya terletak di?", options: ["Jawa", "Sumatera", "Kalimantan", "Sulawesi"], correct: 1, type: "multiple" },
+                    { question: "Sumpah Pemuda tahun berapa?", correct: "1928", type: "numeric" },
+                    { question: "Berapa sila Pancasila?", correct: "5", type: "numeric" },
+                    { question: "17 Agustus tahun berapa?", correct: "1945", type: "numeric" },
+                    { question: "Berapa jumlah pulau di Indonesia?", correct: "17000", type: "numeric" }
+                ]
+            }
+        };
+
+        // ============================================
+        // INITIALIZE ROOMS
+        // ============================================
+        function initializeRooms() {
+            Object.keys(roomConfig).forEach(roomKey => {
+                openRooms[roomKey] = roomKey === '1';
+                playersInRooms[roomKey] = [];
+            });
+            renderRooms();
+        }
+
+        function renderRooms() {
+            const roomsGrid = document.getElementById('roomsGrid');
+            roomsGrid.innerHTML = '';
+            
+            Object.keys(roomConfig).forEach(roomKey => {
+                const config = roomConfig[roomKey];
+                const isOpen = openRooms[roomKey];
+                const isSpecial = config.special;
+                const playerCount = playersInRooms[roomKey]?.length || 0;
+                
+                const roomCard = document.createElement('div');
+                roomCard.className = `room-card ${isOpen ? '' : 'locked'} ${isSpecial ? 'special' : ''}`;
+                roomCard.id = `roomCard${roomKey}`;
+                roomCard.onclick = () => selectRoom(roomKey);
+                
+                const lockIcon = isOpen ? '🔓' : '🔒';
+                const icon = isSpecial ? '🏆' : roomKey === '1' ? '🦸' : roomKey === '2' ? '👥' : roomKey === '3' ? '🎪' : '🏟️';
+                
+                roomCard.innerHTML = `
+                    <div class="room-lock-icon">${lockIcon}</div>
+                    <div class="room-icon">${icon}</div>
+                    <div class="room-name">${config.name}</div>
+                    <div class="room-capacity">
+                        ${isSpecial ? 'Gabungan: Semua Mapel' : `${config.totalQuestions} Soal`}
+                    </div>
+                    <div class="room-players">${playerCount}/${config.maxPlayers} Players</div>
+                `;
+                
+                roomsGrid.appendChild(roomCard);
+            });
+        }
+
+        // ============================================
+        // SOUND SYSTEM
+        // ============================================
+        function initSoundSystem() {
+            if (!soundContext) {
+                soundContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playCorrectSound() {
+            if (!musicEnabled || !soundContext) return;
+            const oscillator = soundContext.createOscillator();
+            const gainNode = soundContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(soundContext.destination);
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.3, soundContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.3);
+            oscillator.start();
+            oscillator.stop(soundContext.currentTime + 0.3);
+        }
+
+        function playWrongSound() {
+            if (!musicEnabled || !soundContext) return;
+            const oscillator = soundContext.createOscillator();
+            const gainNode = soundContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(soundContext.destination);
+            oscillator.frequency.value = 200;
+            oscillator.type = 'sawtooth';
+            gainNode.gain.setValueAtTime(0.3, soundContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.5);
+            oscillator.start();
+            oscillator.stop(soundContext.currentTime + 0.5);
+        }
+
+        function playGameStartSound() {
+            if (!musicEnabled || !soundContext) return;
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    const oscillator = soundContext.createOscillator();
+                    const gainNode = soundContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(soundContext.destination);
+                    oscillator.frequency.value = note;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.3, soundContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.2);
+                    oscillator.start();
+                    oscillator.stop(soundContext.currentTime + 0.2);
+                }, index * 200);
+            });
+        }
+
+        function playGameEndSound() {
+            if (!musicEnabled || !soundContext) return;
+            const notes = [1047, 784, 659, 523];
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    const oscillator = soundContext.createOscillator();
+                    const gainNode = soundContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(soundContext.destination);
+                    oscillator.frequency.value = note;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.3, soundContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.3);
+                    oscillator.start();
+                    oscillator.stop(soundContext.currentTime + 0.3);
+                }, index * 150);
+            });
+        }
+
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            document.getElementById('musicControl').textContent = musicEnabled ? '🔊' : '🔇';
+        }
+
+        // ============================================
+        // LOGIN FUNCTIONS
+        // ============================================
+        function login() {
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) {
+                alert('Masukkan nama kamu dulu ya! 😊');
+                return;
+            }
+
+            const playerId = String(playerIdCounter).padStart(3, '0');
+            playerIdCounter++;
+
+            currentPlayer = {
+                id: playerId,
+                name: name,
+                score: 0,
+                grade: 1,
+                avatar: name.charAt(0).toUpperCase()
+            };
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'flex';
+            document.getElementById('avatar').textContent = currentPlayer.avatar;
+            document.getElementById('displayName').textContent = currentPlayer.name;
+            document.getElementById('playerId').textContent = `ID: ${currentPlayer.id}`;
+            document.getElementById('playerGrade').textContent = currentPlayer.grade;
+            document.getElementById('score').textContent = '0';
+
+            savePlayerToFirebase(currentPlayer);
+            initSoundSystem();
+        }
+
+        function savePlayerToFirebase(player) {
+            db.collection('players').doc(player.id).set({
+                name: player.name,
+                id: player.id,
+                avatar: player.avatar,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                console.log('✅ Player saved to Firebase');
+            }).catch(error => {
+                console.error('❌ Error saving player:', error);
+            });
+        }
+
+        function showAdminLogin() {
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function hideAdminLogin() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                isAdmin = true;
+                alert('✅ Login admin berhasil!');
+                hideAdminLogin();
+                showAdminPanel();
+                
+                if (!currentPlayer) {
+                    currentPlayer = {
+                        id: 'ADMIN',
+                        name: 'Admin KIBSA',
+                        score: 0,
+                        grade: 1,
+                        avatar: 'K'
+                    };
+                    document.getElementById('avatar').textContent = 'K';
+                    document.getElementById('displayName').textContent = 'Admin KIBSA';
+                    document.getElementById('playerId').textContent = 'ID: ADMIN';
+                    document.getElementById('playerGrade').textContent = '1';
+                    document.getElementById('score').textContent = '0';
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('gameContainer').style.display = 'flex';
+                    initSoundSystem();
+                }
+            } else {
+                alert('❌ Username atau password salah!');
+            }
+        }
+
+        function showAdminPanel() {
+            const adminPanel = document.getElementById('adminPanel');
+            adminPanel.style.display = 'block';
+            
+            const adminControls = document.getElementById('adminControls');
+            adminControls.innerHTML = '';
+            
+            Object.keys(roomConfig).forEach(roomKey => {
+                const openBtn = document.createElement('button');
+                openBtn.className = 'admin-btn';
+                openBtn.textContent = `🔓 Buka ${roomConfig[roomKey].name}`;
+                openBtn.onclick = () => openRoom(roomKey);
+                adminControls.appendChild(openBtn);
+                
+                const startBtn = document.createElement('button');
+                startBtn.className = 'admin-btn';
+                startBtn.textContent = `▶️ Mulai ${roomConfig[roomKey].name}`;
+                startBtn.onclick = () => startRoomGame(roomKey);
+                adminControls.appendChild(startBtn);
+            });
+        }
+
+        // ============================================
+        // ROOM FUNCTIONS
+        // ============================================
+        function openRoom(roomKey) {
+            if (!isAdmin) {
+                alert('Kamu bukan admin!');
+                return;
+            }
+            openRooms[roomKey] = true;
+            renderRooms();
+            alert(`✅ ${roomConfig[roomKey].name} dibuka!`);
+            
+            db.collection('rooms').doc(roomKey).set({
+                status: 'open',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(error => {
+                console.error('Error updating room:', error);
+            });
+        }
+
+        function selectRoom(roomKey) {
+            if (!openRooms[roomKey]) {
+                alert('🔒 Room ini masih terkunci! Tunggu admin membukanya.');
+                return;
+            }
+            
+            currentRoom = roomKey;
+            currentGameRoom = roomKey;
+            
+            if (!playersInRooms[roomKey]) {
+                playersInRooms[roomKey] = [];
+            }
+            
+            if (!playersInRooms[roomKey].find(p => p.id === currentPlayer.id)) {
+                playersInRooms[roomKey].push(currentPlayer);
+                
+                realtimeDb.ref('roomPlayers/' + roomKey + '/' + currentPlayer.id).set({
+                    name: currentPlayer.name,
+                    score: currentPlayer.score
+                }).catch(error => {
+                    console.error('Error saving room player:', error);
+                });
+            }
+            
+            renderRooms();
+            
+            document.getElementById('gameArea').innerHTML = `
+                <div style="text-align: center; padding: 50px;">
+                    <h2 style="font-size: 32px; color: var(--primary);">⏳ Menunggu Admin Memulai Game...</h2>
+                    <p style="font-size: 20px; margin-top: 20px;">Room: ${roomConfig[roomKey].name}</p>
+                    <p style="font-size: 16px; margin-top: 10px;">Peserta: ${playersInRooms[roomKey].length} orang</p>
+                </div>
+                ${renderPlayersList()}
+            `;
+        }
+
+        function startRoomGame(roomKey) {
+            if (!isAdmin) {
+                alert('Kamu bukan admin!');
+                return;
+            }
+            
+            currentGameRoom = roomKey;
+            const config = roomConfig[roomKey];
+            totalQuestions = config.totalQuestions;
+            currentQuestionIndex = 0;
+            
+            playGameStartSound();
+            
+            realtimeDb.ref('games/' + roomKey).set({
+                status: 'started',
+                startedAt: Date.now()
+            }).catch(error => {
+                console.error('Error starting game:', error);
+            });
+            
+            startCountdown(roomKey);
+        }
+
+        function startCountdown(roomKey) {
+            const overlay = document.getElementById('countdownOverlay');
+            const numberElement = document.getElementById('countdownNumber');
+            const textElement = document.getElementById('countdownText');
+            
+            overlay.style.display = 'flex';
+            let count = 5;
+            
+            numberElement.textContent = count;
+            numberElement.style.color = 'white';
+            textElement.textContent = 'Bersiap!';
+            
+            countdownInterval = setInterval(() => {
+                count--;
+                
+                if (count > 0) {
+                    numberElement.textContent = count;
+                    numberElement.style.animation = 'none';
+                    setTimeout(() => {
+                        numberElement.style.animation = 'countdownAnim 1s ease';
+                    }, 100);
+                } else if (count === 0) {
+                    numberElement.textContent = 'GO!';
+                    numberElement.style.color = '#1DD1A1';
+                    textElement.textContent = 'GAME START!';
+                    playGameStartSound();
+                } else {
+                    clearInterval(countdownInterval);
+                    overlay.style.display = 'none';
+                    beginGame(roomKey);
+                }
+            }, 1000);
+        }
+
+        function beginGame(roomKey) {
+            gameStarted = true;
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('questionNumber').textContent = `0/${totalQuestions}`;
+            
+            loadQuestion();
+        }
+
+        // ============================================
+        // QUESTION FUNCTIONS
+        // ============================================
+        function getCurrentGrade() {
+            if (score < 100) return 1;
+            if (score < 200) return 2;
+            if (score < 300) return 3;
+            if (score < 400) return 4;
+            if (score < 500) return 5;
+            return 6;
+        }
+
+        function getQuestionForRoom(roomKey, grade) {
+            let subjects;
+            if (['A', 'B', 'C'].includes(roomKey)) {
+                subjects = ['numerik', 'logika', 'spasial', 'memori', 'bahasa', 'ipa', 'sejarah'];
+            } else {
+                subjects = ['numerik', 'logika', 'spasial', 'memori'];
+            }
+            
+            const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+            const subjectQuestions = questionBank[randomSubject];
+            
+            if (!subjectQuestions) return null;
+            
+            let gradeQuestions = subjectQuestions[grade];
+            if (!gradeQuestions || gradeQuestions.length === 0) {
+                const availableGrades = Object.keys(subjectQuestions);
+                const closestGrade = availableGrades.reduce((prev, curr) => {
+                    return Math.abs(curr - grade) < Math.abs(prev - grade) ? curr : prev;
+                });
+                gradeQuestions = subjectQuestions[closestGrade];
+            }
+            
+            return gradeQuestions[Math.floor(Math.random() * gradeQuestions.length)];
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= totalQuestions) {
+                endGame();
+                return;
+            }
+            
+            const grade = getCurrentGrade();
+            const question = getQuestionForRoom(currentGameRoom, grade);
+            
+            if (!question) {
+                loadQuestion();
+                return;
+            }
+            
+            currentQuestion = question;
+            currentQuestionIndex++;
+            document.getElementById('questionNumber').textContent = `${currentQuestionIndex}/${totalQuestions}`;
+            document.getElementById('playerGrade').textContent = grade;
+            
+            questionTimeLeft = 30;
+            renderQuestion(question);
+            startQuestionTimer();
+        }
+
+        function startQuestionTimer() {
+            if (questionTimer) {
+                clearInterval(questionTimer);
+            }
+            
+            questionTimer = setInterval(() => {
+                questionTimeLeft--;
+                const timerElement = document.getElementById('questionTimer');
+                if (timerElement) {
+                    timerElement.textContent = questionTimeLeft;
+                    
+                    if (questionTimeLeft <= 5) {
+                        timerElement.style.color = '#FF6B6B';
+                    } else if (questionTimeLeft <= 10) {
+                        timerElement.style.color = '#FECA57';
+                    }
+                }
+                
+                if (questionTimeLeft <= 0) {
+                    clearInterval(questionTimer);
+                    playWrongSound();
+                    loadQuestion();
+                }
+            }, 1000);
+        }
+
+        function renderQuestion(question) {
+            const gameArea = document.getElementById('gameArea');
+            
+            let questionHTML = `
+                <div class="question-container">
+                    <div class="question-category">📚 ${question.type === 'multiple' ? 'Pilihan Ganda' : 'Isi Jawaban'}</div>
+                    <div class="question-timer" id="questionTimer">${questionTimeLeft}</div>
+                    <div class="question-text">${question.question}</div>
+            `;
+            
+            if (question.type === 'multiple') {
+                questionHTML += `<div class="options-grid">`;
+                question.options.forEach((option, index) => {
+                    questionHTML += `
+                        <button class="option-btn" onclick="checkAnswer(${index})">
+                            ${String.fromCharCode(65 + index)}. ${option}
+                        </button>
+                    `;
+                });
+                questionHTML += `</div>`;
+            } else {
+                questionHTML += `
+                    <div class="numeric-input-container">
+                        <input type="text" id="numericAnswer" class="numeric-input" placeholder="Ketik jawaban kamu" autofocus>
+                        <button class="submit-numeric" onclick="checkNumericAnswer()">Jawab!</button>
+                    </div>
+                `;
+            }
+            
+            questionHTML += `</div>`;
+            questionHTML += renderPlayersList();
+            questionHTML += renderLeaderboard();
+            
+            gameArea.innerHTML = questionHTML;
+            
+            if (question.type === 'numeric') {
+                setTimeout(() => {
+                    const numericInput = document.getElementById('numericAnswer');
+                    if (numericInput) numericInput.focus();
+                }, 100);
+            }
+        }
+
+        function checkAnswer(selectedIndex) {
+            clearInterval(questionTimer);
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            buttons.forEach((btn, index) => {
+                if (index === currentQuestion.correct) {
+                    btn.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    btn.classList.add('wrong');
+                }
+                btn.disabled = true;
+            });
+            
+            if (selectedIndex === currentQuestion.correct) {
+                score += 100;
+                document.getElementById('score').textContent = score;
+                playCorrectSound();
+                createConfetti();
+                updatePlayerScore();
+                
+                setTimeout(() => loadQuestion(), 1500);
+            } else {
+                playWrongSound();
+                setTimeout(() => loadQuestion(), 1500);
+            }
+        }
+
+        function checkNumericAnswer() {
+            clearInterval(questionTimer);
+            const answer = document.getElementById('numericAnswer').value.trim();
+            
+            if (!answer) {
+                alert('Isi jawaban dulu ya! 😊');
+                startQuestionTimer();
+                return;
+            }
+            
+            if (answer.toLowerCase() === currentQuestion.correct.toLowerCase()) {
+                score += 100;
+                document.getElementById('score').textContent = score;
+                playCorrectSound();
+                createConfetti();
+                updatePlayerScore();
+                
+                setTimeout(() => loadQuestion(), 1500);
+            } else {
+                playWrongSound();
+                setTimeout(() => loadQuestion(), 1500);
+            }
+        }
+
+        function updatePlayerScore() {
+            if (currentPlayer) {
+                currentPlayer.score = score;
+                updateRank();
+                
+                realtimeDb.ref('roomPlayers/' + currentRoom + '/' + currentPlayer.id).update({
+                    score: score
+                }).catch(error => {
+                    console.error('Error updating score:', error);
+                });
+            }
+        }
+
+        function updateRank() {
+            const roomPlayersList = playersInRooms[currentRoom] || [];
+            const sortedPlayers = roomPlayersList.slice().sort((a, b) => b.score - a.score);
+            rank = sortedPlayers.findIndex(p => p.id === currentPlayer.id) + 1;
+            document.getElementById('rank').textContent = rank;
+        }
+
+        function renderPlayersList() {
+            const players = playersInRooms[currentRoom] || [];
+            
+            let playersHTML = `
+                <div class="players-list-container">
+                    <div class="players-list-title">👥 Peserta ${roomConfig[currentRoom].name} (${players.length}/${roomConfig[currentRoom].maxPlayers})</div>
+                    <div class="players-grid">
+            `;
+            
+            players.forEach(player => {
+                playersHTML += `
+                    <div class="player-card">
+                        <div class="player-card-avatar">${player.avatar}</div>
+                        <div class="player-card-name">${player.name}</div>
+                        <div class="player-card-id">ID: ${player.id}</div>
+                        <div class="player-card-score">${player.score} poin</div>
+                    </div>
+                `;
+            });
+            
+            playersHTML += `
+                    </div>
+                </div>
+            `;
+            
+            return playersHTML;
+        }
+
+        function renderLeaderboard() {
+            const roomPlayersList = playersInRooms[currentRoom] || [];
+            const sortedPlayers = roomPlayersList.slice().sort((a, b) => b.score - a.score);
+            
+            let leaderboardHTML = `
+                <div class="leaderboard">
+                    <div class="leaderboard-title">🏆 Peringkat ${roomConfig[currentRoom].name}</div>
+                    <ul class="leaderboard-list">
+            `;
+            
+            sortedPlayers.forEach((player, index) => {
+                const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                leaderboardHTML += `
+                    <li class="leaderboard-item">
+                        <span class="rank ${rankClass}">${index + 1}</span>
+                        <span class="player-rank-name">${player.avatar} ${player.name}</span>
+                        <span class="player-rank-score">${player.score} poin</span>
+                    </li>
+                `;
+            });
+            
+            leaderboardHTML += `
+                    </ul>
+                </div>
+            `;
+            
+            return leaderboardHTML;
+        }
+
+        function endGame() {
+            clearInterval(questionTimer);
+            playGameEndSound();
+            
+            if (currentPlayer) {
+                currentPlayer.score = score;
+                updateRank();
+                
+                db.collection('results').add({
+                    playerId: currentPlayer.id,
+                    playerName: currentPlayer.name,
+                    room: currentRoom,
+                    score: score,
+                    completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(error => {
+                    console.error('Error saving result:', error);
+                });
+            }
+            
+            const gameOverOverlay = document.getElementById('gameOverOverlay');
+            const finalScoreElement = document.getElementById('finalScore');
+            finalScoreElement.textContent = score;
+            gameOverOverlay.style.display = 'flex';
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').style.display = 'none';
+            resetGame();
+        }
+
+        function resetGame() {
+            score = 0;
+            currentQuestionIndex = 0;
+            gameStarted = false;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('rank').textContent = '-';
+            document.getElementById('questionNumber').textContent = `0/0`;
+        }
+
+        function createConfetti() {
+            const colors = ['#FF6B6B', '#FECA57', '#1DD1A1', '#48DBFB', '#FF9FF3', '#54A0FF'];
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 2 + 1 + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const numericInput = document.getElementById('numericAnswer');
+                if (numericInput && numericInput.value.trim()) {
+                    checkNumericAnswer();
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRooms();
+            
+            // Firebase real-time listeners
+            realtimeDb.ref('rooms').on('value', (snapshot) => {
+                const roomsData = snapshot.val();
+                if (roomsData) {
+                    Object.keys(roomsData).forEach(roomKey => {
+                        if (roomsData[roomKey].status === 'open') {
+                            openRooms[roomKey] = true;
+                        }
+                    });
+                    renderRooms();
+                }
+            });
+            
+            realtimeDb.ref('roomPlayers').on('value', (snapshot) => {
+                const playersData = snapshot.val();
+                if (playersData) {
+                    Object.keys(playersData).forEach(roomKey => {
+                        const roomPlayersData = playersData[roomKey];
+                        if (roomPlayersData) {
+                            Object.keys(roomPlayersData).forEach(playerId => {
+                                const playerData = roomPlayersData[playerId];
+                                if (playersInRooms[roomKey]) {
+                                    const playerIndex = playersInRooms[roomKey].findIndex(p => p.id === playerId);
+                                    if (playerIndex !== -1) {
+                                        playersInRooms[roomKey][playerIndex].score = playerData.score || 0;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    renderRooms();
+                }
+            });
+        });
+
+        // Inisialisasi awal
+        initializeRooms();
+    </script>
+</body>
+</html>
