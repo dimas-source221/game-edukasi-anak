@@ -22,7 +22,6 @@
             --orange: #FF9F43;
             --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-cool: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
 
         * {
@@ -101,7 +100,6 @@
             margin-bottom: 10px;
             animation: rainbow 3s infinite;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         @keyframes rainbow {
@@ -155,24 +153,6 @@
         .login-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 40px rgba(108, 92, 231, 0.6);
-        }
-
-        .login-btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .login-btn:hover::after {
-            width: 300px;
-            height: 300px;
         }
 
         #gameContainer {
@@ -482,6 +462,11 @@
             font-weight: bold;
         }
 
+        .panel-id {
+            font-size: 12px;
+            color: #888;
+        }
+
         .panel-status {
             padding: 5px 10px;
             border-radius: 10px;
@@ -489,15 +474,8 @@
             font-weight: bold;
         }
 
-        .status-join {
-            background: #FFEAA7;
-            color: #D68910;
-        }
-
-        .status-ready {
-            background: #A8E6CF;
-            color: #1E8449;
-        }
+        .status-join { background: #FFEAA7; color: #D68910; }
+        .status-ready { background: #A8E6CF; color: #1E8449; }
 
         .game-area {
             flex: 1;
@@ -812,18 +790,64 @@
             .countdown-number { font-size: 100px; }
             .game-over-score { font-size: 50px; }
         }
+
+        /* Admin dashboard */
+        .admin-dashboard {
+            display: none;
+            flex: 1;
+            padding: 15px;
+            gap: 15px;
+            z-index: 2;
+        }
+        .dashboard-left {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .dashboard-right {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        .dashboard-question-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .answered-indicator {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #666;
+        }
+        .live-standings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .live-rank { font-weight: bold; width: 30px; }
+        .live-name { flex: 1; font-weight: 600; }
+        .live-score { font-weight: bold; color: var(--primary); }
+        .live-status { font-size: 12px; margin-left: 5px; }
     </style>
 </head>
 <body>
+    <!-- Animated background -->
     <div class="animated-bg">
-        <div class="floating-shape" style="width: 100px; height: 100px; background: #FF6B6B; top: 10%; left: 10%;"></div>
-        <div class="floating-shape" style="width: 150px; height: 150px; background: #FECA57; top: 60%; left: 70%;"></div>
-        <div class="floating-shape" style="width: 80px; height: 80px; background: #1DD1A1; top: 30%; left: 50%;"></div>
-        <div class="floating-shape" style="width: 120px; height: 120px; background: #48DBFB; top: 70%; left: 20%;"></div>
-        <div class="floating-shape" style="width: 90px; height: 90px; background: #FF9FF3; top: 40%; left: 80%;"></div>
+        <div class="floating-shape" style="width:100px;height:100px;background:#FF6B6B;top:10%;left:10%;"></div>
+        <div class="floating-shape" style="width:150px;height:150px;background:#FECA57;top:60%;left:70%;"></div>
+        <div class="floating-shape" style="width:80px;height:80px;background:#1DD1A1;top:30%;left:50%;"></div>
+        <div class="floating-shape" style="width:120px;height:120px;background:#48DBFB;top:70%;left:20%;"></div>
+        <div class="floating-shape" style="width:90px;height:90px;background:#FF9FF3;top:40%;left:80%;"></div>
     </div>
 
-    <!-- Login Screen -->
+    <!-- Login screen -->
     <div id="loginScreen">
         <div class="logo-container">
             <img src="https://drive.google.com/uc?export=view&id=1hOEjjzYvReoRYTv_r0Kzw11128uFgj1W" alt="KIBSA Logo" class="logo" onerror="this.style.display='none'">
@@ -835,17 +859,18 @@
             <option value="">-- Pilih Room Pertandingan --</option>
         </select>
         <button class="login-btn" id="btnEnterRoom">🚀 Masuk Room</button>
-        <p style="margin-top: 20px; color: #999; font-size: 14px;">
-            👨‍🏫 Login Admin? <a href="#" id="linkAdminLogin" style="color: var(--primary);">Klik di sini</a>
+        <p style="margin-top:20px;color:#999;font-size:14px;">
+            👨‍🏫 Login Admin? <a href="#" id="linkAdminLogin" style="color:var(--primary);">Klik di sini</a>
         </p>
-        <div class="footer" style="margin-top: 20px;">Copyright KIBSA 2026</div>
+        <div class="footer" style="margin-top:20px;">Copyright KIBSA 2026</div>
     </div>
 
-    <!-- Main Game Container -->
+    <!-- Main game container -->
     <div id="gameContainer">
-        <div class="game-header">
+        <!-- Header -->
+        <div class="game-header" id="gameHeader">
             <img src="https://drive.google.com/uc?export=view&id=1hOEjjzYvReoRYTv_r0Kzw11128uFgj1W" alt="KIBSA" class="header-logo" onerror="this.style.display='none'">
-            <div class="player-info">
+            <div class="player-info" id="playerInfoHeader">
                 <div class="player-avatar" id="avatar">A</div>
                 <div>
                     <h3 id="displayName">Player</h3>
@@ -853,29 +878,32 @@
                     <small>Kelas: <span id="playerGrade">1</span></small>
                 </div>
             </div>
-            <div class="player-stats">
+            <div class="player-stats" id="playerStatsHeader">
                 <div class="stat-badge">⭐ Poin: <strong id="score">0</strong></div>
                 <div class="stat-badge">🏆 Peringkat: <strong id="rank">-</strong></div>
                 <div class="stat-badge">📝 Soal: <strong id="questionNumber">0/0</strong></div>
             </div>
         </div>
 
-        <div id="adminPanel" class="admin-panel" style="display: none;">
+        <!-- Admin panel (controls) -->
+        <div id="adminPanel" class="admin-panel" style="display:none;">
             <div class="admin-title">👨‍🏫 Panel Admin KIBSA</div>
             <div class="admin-controls" id="adminControls"></div>
         </div>
 
+        <!-- Room selection (admin & player) -->
         <div class="room-selection" id="roomSelection">
             <div class="room-title">🎯 Pilih Room Pertandingan!</div>
             <div class="rooms-grid" id="roomsGrid"></div>
         </div>
 
+        <!-- Lobby (player) -->
         <div id="lobbyContainer" class="lobby-container">
             <div class="lobby-main">
                 <div class="lobby-title">🏟️ Lobby Room <span id="lobbyRoomName"></span></div>
                 <div class="lobby-status" id="lobbyStatus">Menunggu instruksi Admin...</div>
                 <div class="lobby-waiting">⏳</div>
-                <button class="login-btn" id="btnLeaveRoom" style="margin-top: 30px; width: auto; padding: 10px 30px;">Keluar Room</button>
+                <button class="login-btn" id="btnLeaveRoom" style="margin-top:30px;width:auto;padding:10px 30px;">Keluar Room</button>
             </div>
             <div class="players-panel" id="playersPanel">
                 <div class="players-panel-title">👥 Peserta Room</div>
@@ -883,8 +911,8 @@
             </div>
         </div>
 
-        <!-- Admin Dashboard -->
-        <div id="adminDashboard" class="admin-dashboard" style="display: none;">
+        <!-- Admin dashboard (host/spectator) -->
+        <div id="adminDashboard" class="admin-dashboard" style="display:none;">
             <div class="dashboard-left">
                 <div class="dashboard-question-preview" id="questionPreview"></div>
                 <div class="answered-indicator" id="answeredIndicator">0 peserta sudah menjawab</div>
@@ -897,38 +925,42 @@
             </div>
         </div>
 
+        <!-- Game area (player) -->
         <div class="game-area" id="gameArea"></div>
     </div>
 
+    <!-- Countdown overlay -->
     <div id="countdownOverlay" class="countdown-overlay">
         <div id="countdownNumber" class="countdown-number">5</div>
         <div id="countdownText" class="countdown-text">Bersiap!</div>
     </div>
 
+    <!-- Game over overlay -->
     <div id="gameOverOverlay" class="game-over-overlay">
         <div class="game-over-content">
             <div class="game-over-title">🏁 GAME END!</div>
             <div class="game-over-score" id="finalScore">0</div>
-            <p style="font-size: 24px; margin-bottom: 20px;">Poin Kamu</p>
-            <button class="login-btn" id="btnCloseGameOver">🔄 Kembali ke Lobby</button>
+            <p style="font-size:24px;margin-bottom:20px;">Poin Kamu</p>
+            <button class="login-btn" id="btnCloseGameOver" style="width:auto;padding:15px 40px;">🔄 Kembali ke Lobby</button>
         </div>
     </div>
 
-    <!-- Admin Login Modal -->
+    <!-- Admin login modal -->
     <div id="adminModal" class="modal">
         <div class="modal-content">
-            <h3 style="margin-bottom: 20px;">👨‍🏫 Login Admin KIBSA</h3>
+            <h3 style="margin-bottom:20px;">👨‍🏫 Login Admin KIBSA</h3>
             <input type="text" id="adminUsername" class="login-input" placeholder="Username">
             <input type="password" id="adminPassword" class="login-input" placeholder="Password">
             <button class="login-btn" id="btnAdminLogin">Login Admin</button>
-            <button id="btnCancelAdmin" style="margin-top: 10px; width: 100%; padding: 10px; background: #ddd; border: none; border-radius: 10px; cursor: pointer;">Batal</button>
+            <button id="btnCancelAdmin" style="margin-top:10px;width:100%;padding:10px;background:#ddd;border:none;border-radius:10px;cursor:pointer;">Batal</button>
         </div>
     </div>
 
+    <!-- Music control -->
     <div class="music-control" id="musicControl">🔊</div>
 
     <script>
-        // Firebase configuration
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyBGvByjkM0gNyPH2DaaOgt9Z905BbDpZ7U",
             authDomain: "game-edukasi-anak-ffce4.firebaseapp.com",
@@ -939,20 +971,17 @@
             appId: "1:6376241471:web:9dd40158a1e4164091fb8a"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
         const realtimeDb = firebase.database();
 
-        // Game state
+        // Global state
         let currentPlayer = null;
         let currentRoom = null;
         let isAdmin = false;
+        let currentGameRoom = null;
         let currentQuestionIndex = 0;
         let totalQuestions = 0;
         let score = 0;
         let rank = 0;
-        let playerIdCounter = 1;
-        let playersInRooms = {};
-        let openRooms = {};
         let gameStarted = false;
         let musicEnabled = true;
         let questionTimer = null;
@@ -961,8 +990,8 @@
         let adminGameTimer = null;
         let soundContext = null;
         let isGameEnded = false;
-        let currentGameRoom = null;
 
+        // Room config
         const roomConfig = {
             1: { name: "Room 1", maxPlayers: 100, totalQuestions: 15 },
             2: { name: "Room 2", maxPlayers: 100, totalQuestions: 20 },
@@ -973,67 +1002,79 @@
             'C': { name: "Room C", maxPlayers: 100, totalQuestions: 25, special: true }
         };
 
-        const adminCredentials = {
-            username: 'KIBSA',
-            password: 'admin123'
-        };
+        // Admin credentials
+        const adminCredentials = { username: 'KIBSA', password: 'admin123' };
 
-        // Question bank (ringkasan)
+        // Question bank (simplified)
         const questionBank = {
             numerik: {
-                1: [{ question: "5 + 3 = ?", options: ["6", "7", "8", "9"], correct: 2, type: "multiple" }],
-                2: [{ question: "12 - 7 = ?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" }],
-                3: [{ question: "8 x 6 = ?", options: ["42", "46", "48", "50"], correct: 2, type: "multiple" }],
-                4: [{ question: "72 : 8 = ?", options: ["7", "8", "9", "10"], correct: 2, type: "multiple" }],
-                5: [{ question: "125 + 75 = ?", options: ["150", "175", "200", "225"], correct: 2, type: "multiple" }],
-                6: [{ question: "144 : 12 = ?", options: ["10", "11", "12", "13"], correct: 2, type: "multiple" }]
+                1: [{ q: "5 + 3 = ?", opts: ["6","7","8","9"], ans: 2 }, { q: "2 + 2 = ?", opts: ["3","4","5","6"], ans: 1 }],
+                2: [{ q: "12 - 7 = ?", opts: ["4","5","6","7"], ans: 1 }, { q: "15 + 25 = ?", opts: ["30","35","40","45"], ans: 2 }],
+                3: [{ q: "8 x 6 = ?", opts: ["42","46","48","50"], ans: 2 }, { q: "7 x 7 = ?", opts: ["42","47","49","52"], ans: 2 }],
+                4: [{ q: "72 : 8 = ?", opts: ["7","8","9","10"], ans: 2 }, { q: "144 : 12 = ?", opts: ["10","11","12","13"], ans: 2 }],
+                5: [{ q: "125 + 75 = ?", opts: ["150","175","200","225"], ans: 2 }, { q: "15 x 15 = ?", opts: ["200","215","225","250"], ans: 2 }],
+                6: [{ q: "144 : 12 = ?", opts: ["10","11","12","13"], ans: 2 }, { q: "13 x 13 = ?", opts: ["159","169","179","189"], ans: 1 }]
             },
             logika: {
-                1: [{ question: "Mana yang lebih besar?", options: ["3", "5", "2", "4"], correct: 1, type: "multiple" }],
-                2: [{ question: "A=1, B=2, C=3, maka C+B=?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" }],
-                3: [{ question: "Lanjutkan: 2,4,6,8,...", options: ["9", "10", "11", "12"], correct: 1, type: "multiple" }],
-                4: [{ question: "3x=12, x=?", options: ["2", "3", "4", "6"], correct: 2, type: "multiple" }],
-                5: [{ question: "Pola: 1,3,6,10,...", options: ["12", "14", "15", "16"], correct: 2, type: "multiple" }],
-                6: [{ question: "a+b=10, a=4, b=?", options: ["4", "5", "6", "7"], correct: 2, type: "multiple" }]
+                1: [{ q: "Mana yang lebih besar?", opts: ["3","5","2","4"], ans: 1 }],
+                2: [{ q: "A=1, B=2, C=3, maka C+B=?", opts: ["4","5","6","7"], ans: 1 }],
+                3: [{ q: "Lanjutkan: 2,4,6,8,...", opts: ["9","10","11","12"], ans: 1 }],
+                4: [{ q: "3x=12, x=?", opts: ["2","3","4","6"], ans: 2 }],
+                5: [{ q: "Pola: 1,3,6,10,...", opts: ["12","14","15","16"], ans: 2 }],
+                6: [{ q: "a+b=10, a=4, b=?", opts: ["4","5","6","7"], ans: 2 }]
             },
             spasial: {
-                1: [{ question: "Sisi segitiga?", options: ["2", "3", "4", "5"], correct: 1, type: "multiple" }],
-                2: [{ question: "Sisi persegi?", options: ["2", "3", "4", "5"], correct: 2, type: "multiple" }],
-                3: [{ question: "Sisi kubus?", options: ["4", "6", "8", "12"], correct: 1, type: "multiple" }],
-                4: [{ question: "Sudut segilima?", options: ["3", "4", "5", "6"], correct: 2, type: "multiple" }],
-                5: [{ question: "Sisi balok?", options: ["4", "6", "8", "12"], correct: 1, type: "multiple" }],
-                6: [{ question: "Volume kubus sisi 3 = ?", options: ["9", "18", "27", "36"], correct: 2, type: "multiple" }]
+                1: [{ q: "Sisi segitiga?", opts: ["2","3","4","5"], ans: 1 }],
+                2: [{ q: "Sisi persegi?", opts: ["2","3","4","5"], ans: 2 }],
+                3: [{ q: "Sisi kubus?", opts: ["4","6","8","12"], ans: 1 }],
+                4: [{ q: "Sudut segilima?", opts: ["3","4","5","6"], ans: 2 }],
+                5: [{ q: "Sisi balok?", opts: ["4","6","8","12"], ans: 1 }],
+                6: [{ q: "Volume kubus sisi 3 = ?", opts: ["9","18","27","36"], ans: 2 }]
             },
             memori: {
-                1: [{ question: "Warna pelangi pertama?", options: ["Merah", "Jingga", "Kuning", "Hijau"], correct: 0, type: "multiple" }],
-                2: [{ question: "Huruf kedua dari A,B,C,D?", options: ["A", "B", "C", "D"], correct: 1, type: "multiple" }],
-                3: [{ question: "Angka ketiga dari 2,4,6,8?", options: ["2", "4", "6", "8"], correct: 2, type: "multiple" }],
-                4: [{ question: "Presiden pertama RI?", options: ["Soeharto", "Habibie", "Soekarno", "SBY"], correct: 2, type: "multiple" }],
-                5: [{ question: "Proklamasi tahun?", options: ["1944", "1945", "1946", "1947"], correct: 1, type: "multiple" }],
-                6: [{ question: "Sumpah Pemuda tanggal?", options: ["28 Okt", "17 Agu", "1 Jun", "10 Nov"], correct: 0, type: "multiple" }]
+                1: [{ q: "Warna pelangi pertama?", opts: ["Merah","Jingga","Kuning","Hijau"], ans: 0 }],
+                2: [{ q: "Huruf kedua dari A,B,C,D?", opts: ["A","B","C","D"], ans: 1 }],
+                3: [{ q: "Angka ketiga dari 2,4,6,8?", opts: ["2","4","6","8"], ans: 2 }],
+                4: [{ q: "Presiden pertama RI?", opts: ["Soeharto","Habibie","Soekarno","SBY"], ans: 2 }],
+                5: [{ q: "Proklamasi tahun?", opts: ["1944","1945","1946","1947"], ans: 1 }],
+                6: [{ q: "Sumpah Pemuda tanggal?", opts: ["28 Okt","17 Agu","1 Jun","10 Nov"], ans: 0 }]
             }
         };
 
-        // Initialize
+        // Initialize rooms
         function initializeRooms() {
-            Object.keys(roomConfig).forEach(roomKey => {
-                openRooms[roomKey] = roomKey === '1';
-                playersInRooms[roomKey] = [];
+            // Set room 1 open by default
+            realtimeDb.ref('rooms').once('value').then(snapshot => {
+                const rooms = snapshot.val() || {};
+                Object.keys(roomConfig).forEach(key => {
+                    if (!rooms[key]) {
+                        realtimeDb.ref('rooms/' + key).set({
+                            status: key === '1' ? 'open' : 'closed',
+                            players: {}
+                        });
+                    }
+                });
+                renderRoomSelection();
+                renderRoomCards();
             });
-            renderRoomSelection();
-            renderRoomCards();
         }
 
         function renderRoomSelection() {
             const select = document.getElementById('roomSelect');
             select.innerHTML = '<option value="">-- Pilih Room Pertandingan --</option>';
-            Object.keys(roomConfig).forEach(roomKey => {
-                const config = roomConfig[roomKey];
-                const option = document.createElement('option');
-                option.value = roomKey;
-                option.textContent = `${config.name} (${config.totalQuestions} Soal)`;
-                option.disabled = !openRooms[roomKey];
-                select.appendChild(option);
+            // Use openRooms status from Firebase (update via listener)
+            realtimeDb.ref('rooms').on('value', snapshot => {
+                const rooms = snapshot.val() || {};
+                select.innerHTML = '<option value="">-- Pilih Room Pertandingan --</option>';
+                Object.keys(roomConfig).forEach(key => {
+                    const config = roomConfig[key];
+                    const status = rooms[key]?.status || 'closed';
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = `${config.name} (${config.totalQuestions} Soal)`;
+                    option.disabled = status !== 'open';
+                    select.appendChild(option);
+                });
             });
         }
 
@@ -1041,118 +1082,131 @@
             const roomsGrid = document.getElementById('roomsGrid');
             if (!roomsGrid) return;
             roomsGrid.innerHTML = '';
-            Object.keys(roomConfig).forEach(roomKey => {
-                const config = roomConfig[roomKey];
-                const isOpen = openRooms[roomKey];
-                const playerCount = (playersInRooms[roomKey] || []).length;
-                const roomCard = document.createElement('div');
-                roomCard.className = `room-card ${isOpen ? '' : 'locked'} ${config.special ? 'special' : ''}`;
-                roomCard.onclick = () => selectRoomFromCard(roomKey);
-                const lockIcon = isOpen ? '🔓' : '🔒';
-                const icon = config.special ? '🏆' : roomKey === '1' ? '🦸' : roomKey === '2' ? '👥' : roomKey === '3' ? '🎪' : '🏟️';
-                roomCard.innerHTML = `
-                    <div class="room-lock-icon">${lockIcon}</div>
-                    <div class="room-icon">${icon}</div>
-                    <div class="room-name">${config.name}</div>
-                    <div class="room-capacity">${config.totalQuestions} Soal</div>
-                    <div class="room-players">${playerCount}/${config.maxPlayers} Players</div>
-                `;
-                roomsGrid.appendChild(roomCard);
+            realtimeDb.ref('rooms').on('value', snapshot => {
+                const rooms = snapshot.val() || {};
+                roomsGrid.innerHTML = '';
+                Object.keys(roomConfig).forEach(key => {
+                    const config = roomConfig[key];
+                    const status = rooms[key]?.status || 'closed';
+                    const players = rooms[key]?.players ? Object.keys(rooms[key].players).length : 0;
+                    const card = document.createElement('div');
+                    card.className = `room-card ${status === 'open' ? '' : 'locked'} ${config.special ? 'special' : ''}`;
+                    card.onclick = () => {
+                        if (status === 'open') {
+                            document.getElementById('roomSelect').value = key;
+                        } else {
+                            alert('🔒 Room ini masih terkunci!');
+                        }
+                    };
+                    const lockIcon = status === 'open' ? '🔓' : '🔒';
+                    const icon = config.special ? '🏆' : key === '1' ? '🦸' : key === '2' ? '👥' : key === '3' ? '🎪' : '🏟️';
+                    card.innerHTML = `
+                        <div class="room-lock-icon">${lockIcon}</div>
+                        <div class="room-icon">${icon}</div>
+                        <div class="room-name">${config.name}</div>
+                        <div class="room-capacity">${config.totalQuestions} Soal</div>
+                        <div class="room-players">${players}/${config.maxPlayers} Players</div>
+                    `;
+                    roomsGrid.appendChild(card);
+                });
             });
         }
 
-        function selectRoomFromCard(roomKey) {
-            if (!openRooms[roomKey]) {
-                alert('🔒 Room ini masih terkunci!');
-                return;
-            }
-            document.getElementById('roomSelect').value = roomKey;
-        }
-
-        // Enter room (player)
+        // Enter room as player
         function enterRoom() {
             const name = document.getElementById('playerName').value.trim();
             const roomKey = document.getElementById('roomSelect').value;
             if (!name) { alert('Masukkan nama kamu dulu ya! 😊'); return; }
             if (!roomKey) { alert('Pilih room pertandingan dulu!'); return; }
-            if (!openRooms[roomKey]) { alert('🔒 Room ini masih terkunci! Tunggu admin membukanya.'); return; }
 
-            const playerId = String(playerIdCounter).padStart(3, '0');
-            playerIdCounter++;
-            currentPlayer = {
-                id: playerId,
-                name: name,
-                score: 0,
-                grade: 1,
-                avatar: name.charAt(0).toUpperCase(),
-                status: 'join'
-            };
-            currentRoom = roomKey;
+            // Check room status
+            realtimeDb.ref('rooms/' + roomKey).once('value').then(snapshot => {
+                const roomData = snapshot.val();
+                if (!roomData || roomData.status !== 'open') {
+                    alert('🔒 Room ini masih terkunci!');
+                    return;
+                }
 
-            // Simpan ke Firebase Realtime Database
-            realtimeDb.ref(`rooms/${roomKey}/players/${playerId}`).set({
-                name: currentPlayer.name,
-                avatar: currentPlayer.avatar,
-                score: 0,
-                status: 'join'
+                // Generate unique key and auto-increment display ID
+                const playersRef = realtimeDb.ref('rooms/' + roomKey + '/players');
+                playersRef.once('value').then(playersSnapshot => {
+                    const players = playersSnapshot.val() || {};
+                    const playerCount = Object.keys(players).length;
+                    const displayId = String(playerCount + 1).padStart(3, '0'); // 001, 002, ...
+
+                    // Use push to generate unique key
+                    const newPlayerRef = playersRef.push();
+                    const playerKey = newPlayerRef.key;
+                    const playerData = {
+                        name: name,
+                        avatar: name.charAt(0).toUpperCase(),
+                        displayId: displayId,
+                        score: 0,
+                        status: 'join',
+                        timestamp: Date.now()
+                    };
+                    newPlayerRef.set(playerData);
+
+                    // Set current player info
+                    currentPlayer = {
+                        key: playerKey,
+                        name: name,
+                        displayId: displayId,
+                        avatar: name.charAt(0).toUpperCase(),
+                        score: 0,
+                        status: 'join'
+                    };
+                    currentRoom = roomKey;
+
+                    // Update UI
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('gameContainer').style.display = 'flex';
+                    // Show player header (hide if admin)
+                    document.getElementById('playerInfoHeader').style.display = 'flex';
+                    document.getElementById('playerStatsHeader').style.display = 'flex';
+                    document.getElementById('avatar').textContent = currentPlayer.avatar;
+                    document.getElementById('displayName').textContent = currentPlayer.name;
+                    document.getElementById('playerId').textContent = `ID: ${currentPlayer.displayId}`;
+                    document.getElementById('playerGrade').textContent = '1';
+                    document.getElementById('score').textContent = '0';
+
+                    // Show lobby
+                    showLobby();
+
+                    // Listen to players in room for realtime updates
+                    listenToPlayers(roomKey);
+                });
             });
-
-            // Update local playersInRooms untuk pengecekan cepat (opsional)
-            if (!playersInRooms[roomKey]) playersInRooms[roomKey] = [];
-            playersInRooms[roomKey].push(currentPlayer);
-
-            // Setup UI
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('gameContainer').style.display = 'flex';
-            document.getElementById('avatar').textContent = currentPlayer.avatar;
-            document.getElementById('displayName').textContent = currentPlayer.name;
-            document.getElementById('playerId').textContent = `ID: ${currentPlayer.id}`;
-            document.getElementById('playerGrade').textContent = currentPlayer.grade;
-            document.getElementById('score').textContent = '0';
-            initSoundSystem();
-
-            // Tampilkan lobby
-            showLobby();
-
-            // Pasang listener untuk update daftar peserta secara realtime
-            listenToPlayersInRoom(roomKey);
         }
 
-        function listenToPlayersInRoom(roomKey) {
-            const playersRef = realtimeDb.ref(`rooms/${roomKey}/players`);
-            playersRef.on('value', (snapshot) => {
-                const playersData = snapshot.val();
-                const panel = document.getElementById('playersPanelGrid');
-                if (!panel) return;
-                panel.innerHTML = ''; // CLEAR PENTING
-                if (!playersData) return;
-                const playersArray = Object.keys(playersData).map(id => ({
-                    id: id,
-                    name: playersData[id].name,
-                    avatar: playersData[id].avatar,
-                    score: playersData[id].score || 0,
-                    status: playersData[id].status || 'join'
-                }));
-                // Update juga local playersInRooms untuk sinkronisasi leaderboard jika perlu
-                playersInRooms[roomKey] = playersArray;
-                // Render panel
-                playersArray.forEach(player => {
-                    const status = player.status;
+        function listenToPlayers(roomKey) {
+            const playersRef = realtimeDb.ref('rooms/' + roomKey + '/players');
+            playersRef.on('value', snapshot => {
+                const playersPanel = document.getElementById('playersPanelGrid');
+                if (!playersPanel) return;
+                playersPanel.innerHTML = ''; // Clear before render
+
+                snapshot.forEach(childSnapshot => {
+                    const playerData = childSnapshot.val();
+                    const playerKey = childSnapshot.key;
+                    const status = playerData.status || 'join';
                     const statusClass = status === 'ready' ? 'status-ready' : 'status-join';
                     const statusText = status === 'ready' ? 'READY' : 'JOIN';
+
                     const item = document.createElement('div');
                     item.className = 'panel-player-item';
                     item.innerHTML = `
                         <div class="panel-player-info">
-                            <div class="panel-avatar">${player.avatar}</div>
-                            <div class="panel-name">${player.name}</div>
+                            <div class="panel-avatar">${playerData.avatar}</div>
+                            <div>
+                                <div class="panel-name">${playerData.name}</div>
+                                <div class="panel-id">ID: ${playerData.displayId}</div>
+                            </div>
                         </div>
                         <div class="panel-status ${statusClass}">${statusText}</div>
                     `;
-                    panel.appendChild(item);
+                    playersPanel.appendChild(item);
                 });
-                // Update jumlah peserta di kartu room
-                renderRoomCards();
             });
         }
 
@@ -1165,62 +1219,42 @@
             document.getElementById('lobbyStatus').textContent = 'Menunggu instruksi Admin...';
         }
 
-        function leaveRoom() {
-            if (!currentPlayer || !currentRoom) return;
-            // Hapus data player dari Firebase
-            realtimeDb.ref(`rooms/${currentRoom}/players/${currentPlayer.id}`).remove();
-            // Hentikan listener jika ada? (tidak perlu, akan hilang jika node terhapus)
-            document.getElementById('gameContainer').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'block';
-            currentPlayer = null;
-            currentRoom = null;
-        }
-
-        // Admin login (FIXED)
+        // Admin login
         function showAdminLogin() {
             document.getElementById('adminModal').style.display = 'flex';
         }
-
         function hideAdminLogin() {
             document.getElementById('adminModal').style.display = 'none';
         }
-
         function adminLogin() {
             const username = document.getElementById('adminUsername').value.trim();
             const password = document.getElementById('adminPassword').value.trim();
             if (username === adminCredentials.username && password === adminCredentials.password) {
                 isAdmin = true;
                 hideAdminLogin();
-                showAdminPanel();
-                if (document.getElementById('gameContainer').style.display === 'none') {
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('gameContainer').style.display = 'flex';
-                    currentPlayer = {
-                        id: 'ADMIN',
-                        name: 'Admin KIBSA',
-                        score: 0,
-                        grade: 1,
-                        avatar: 'K',
-                        status: 'ready'
-                    };
-                    document.getElementById('avatar').textContent = 'K';
-                    document.getElementById('displayName').textContent = 'Admin KIBSA';
-                    document.getElementById('playerId').textContent = 'ID: ADMIN';
-                    document.getElementById('playerGrade').textContent = '1';
-                    document.getElementById('score').textContent = '0';
-                    initSoundSystem();
-                }
+                // Hide login screen, show game container
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'flex';
+                // Hide player header elements for admin
+                document.getElementById('playerInfoHeader').style.display = 'none';
+                document.getElementById('playerStatsHeader').style.display = 'none';
+                // Show admin panel and room selection
+                document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('roomSelection').style.display = 'block';
+                // Hide lobby and game area
                 document.getElementById('lobbyContainer').style.display = 'none';
-                document.getElementById('adminDashboard').style.display = 'none';
                 document.getElementById('gameArea').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'none';
+                // Setup admin controls
+                setupAdminControls();
+                // Listen to rooms for room cards
+                renderRoomCards();
             } else {
                 alert('Username/Password salah!');
             }
         }
 
-        function showAdminPanel() {
-            document.getElementById('adminPanel').style.display = 'block';
+        function setupAdminControls() {
             const adminControls = document.getElementById('adminControls');
             adminControls.innerHTML = '';
             Object.keys(roomConfig).forEach(roomKey => {
@@ -1240,23 +1274,20 @@
 
         function openRoom(roomKey) {
             if (!isAdmin) return;
-            openRooms[roomKey] = true;
-            realtimeDb.ref(`rooms/${roomKey}`).update({ status: 'open' });
-            // Update status semua player menjadi ready
-            realtimeDb.ref(`rooms/${roomKey}/players`).once('value', (snapshot) => {
-                const players = snapshot.val() || {};
-                Object.keys(players).forEach(playerId => {
-                    realtimeDb.ref(`rooms/${roomKey}/players/${playerId}/status`).set('ready');
+            realtimeDb.ref('rooms/' + roomKey).update({ status: 'open' });
+            // Update players status to ready
+            realtimeDb.ref('rooms/' + roomKey + '/players').once('value').then(snapshot => {
+                snapshot.forEach(child => {
+                    realtimeDb.ref('rooms/' + roomKey + '/players/' + child.key).update({ status: 'ready' });
                 });
             });
-            renderRoomSelection();
-            renderRoomCards();
             alert(`✅ ${roomConfig[roomKey].name} dibuka! Status peserta menjadi READY.`);
+            renderRoomCards();
         }
 
         function startRoomGame(roomKey) {
             if (!isAdmin) return;
-            if (!openRooms[roomKey]) { alert('Buka room terlebih dahulu!'); return; }
+            if (!roomKey) { alert('Pilih room yang sudah dibuka.'); return; }
             currentGameRoom = roomKey;
             totalQuestions = roomConfig[roomKey].totalQuestions;
             currentQuestionIndex = 0;
@@ -1264,39 +1295,42 @@
             gameStarted = true;
             isGameEnded = false;
 
-            realtimeDb.ref(`rooms/${roomKey}`).update({
+            // Update Firebase game state
+            realtimeDb.ref('rooms/' + roomKey).update({
                 status: 'started',
                 currentQuestionIndex: 0,
                 totalQuestions: totalQuestions
             });
 
+            // Hide room selection, show admin dashboard
             document.getElementById('roomSelection').style.display = 'none';
-            document.getElementById('lobbyContainer').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'flex';
+            document.getElementById('lobbyContainer').style.display = 'none';
             document.getElementById('gameArea').style.display = 'none';
 
+            // Start countdown
             startCountdown(roomKey);
         }
 
         function startCountdown(roomKey) {
             const overlay = document.getElementById('countdownOverlay');
-            const numberElement = document.getElementById('countdownNumber');
-            const textElement = document.getElementById('countdownText');
+            const numberEl = document.getElementById('countdownNumber');
+            const textEl = document.getElementById('countdownText');
             overlay.style.display = 'flex';
             let count = 5;
-            numberElement.textContent = count;
-            numberElement.style.color = 'white';
-            textElement.textContent = 'Bersiap!';
+            numberEl.textContent = count;
+            numberEl.style.color = 'white';
+            textEl.textContent = 'Bersiap!';
             countdownInterval = setInterval(() => {
                 count--;
                 if (count > 0) {
-                    numberElement.textContent = count;
-                    numberElement.style.animation = 'none';
-                    setTimeout(() => { numberElement.style.animation = 'countdownAnim 1s ease'; }, 100);
+                    numberEl.textContent = count;
+                    numberEl.style.animation = 'none';
+                    setTimeout(() => { numberEl.style.animation = 'countdownAnim 1s ease'; }, 100);
                 } else if (count === 0) {
-                    numberElement.textContent = 'GO!';
-                    numberElement.style.color = '#1DD1A1';
-                    textElement.textContent = 'GAME START!';
+                    numberEl.textContent = 'GO!';
+                    numberEl.style.color = '#1DD1A1';
+                    textEl.textContent = 'GAME START!';
                     playGameStartSound();
                 } else {
                     clearInterval(countdownInterval);
@@ -1307,29 +1341,36 @@
         }
 
         function beginGame(roomKey) {
+            // Admin: render first question
             renderAdminDashboard();
             startAdminTimer();
-            // Peserta akan mendengar perubahan dari Firebase
-            listenForGameOnPlayerSide(roomKey);
+            // Player side will be updated via Firebase listener
         }
 
         function renderAdminDashboard() {
             const question = getQuestionForRoom(currentGameRoom, getCurrentGrade());
             if (!question) return;
-            realtimeDb.ref(`rooms/${currentGameRoom}/currentQuestion`).set({
+
+            // Save current question to Firebase for players
+            realtimeDb.ref('rooms/' + currentGameRoom + '/currentQuestion').set({
                 index: currentQuestionIndex,
                 totalQuestions: totalQuestions,
-                question: question
+                question: {
+                    text: question.q,
+                    options: question.opts,
+                    correct: question.ans,
+                    type: 'multiple'
+                }
             });
 
             const preview = document.getElementById('questionPreview');
             let html = `
                 <div class="question-category">📚 Soal ${currentQuestionIndex + 1} dari ${totalQuestions}</div>
-                <div class="question-text">${question.question}</div>
+                <div class="question-text">${question.q}</div>
             `;
-            if (question.type === 'multiple') {
+            if (question.opts) {
                 html += `<div class="options-grid">`;
-                question.options.forEach((opt, i) => {
+                question.opts.forEach((opt, i) => {
                     html += `<div class="option-btn" style="cursor:default;">${String.fromCharCode(65+i)}. ${opt}</div>`;
                 });
                 html += `</div>`;
@@ -1338,6 +1379,9 @@
             }
             preview.innerHTML = html;
             document.getElementById('answeredIndicator').textContent = '0 peserta sudah menjawab';
+
+            // Start listening to answers count
+            listenAnsweredCount();
             updateLiveStandings();
         }
 
@@ -1360,7 +1404,7 @@
                 endGameAndReset();
                 return;
             }
-            realtimeDb.ref(`rooms/${currentGameRoom}`).update({
+            realtimeDb.ref('rooms/' + currentGameRoom).update({
                 currentQuestionIndex: currentQuestionIndex
             });
             renderAdminDashboard();
@@ -1369,24 +1413,28 @@
 
         function updateLiveStandings() {
             const room = currentGameRoom;
-            realtimeDb.ref(`rooms/${room}/players`).on('value', (snapshot) => {
-                const playersData = snapshot.val() || {};
+            realtimeDb.ref('rooms/' + room + '/players').on('value', snapshot => {
                 const listEl = document.getElementById('liveStandingsList');
                 if (!listEl) return;
-                const playersArray = Object.keys(playersData).map(id => ({
-                    id: id,
-                    name: playersData[id].name,
-                    score: playersData[id].score || 0,
-                    status: playersData[id].status || 'join'
-                }));
-                playersArray.sort((a, b) => b.score - a.score);
                 listEl.innerHTML = '';
+                const playersArray = [];
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    playersArray.push({
+                        key: child.key,
+                        name: data.name,
+                        displayId: data.displayId,
+                        score: data.score || 0,
+                        status: data.status || 'join'
+                    });
+                });
+                playersArray.sort((a,b) => b.score - a.score);
                 playersArray.forEach((player, index) => {
                     const item = document.createElement('div');
                     item.className = 'live-standings-item';
                     item.innerHTML = `
                         <span class="live-rank">${index + 1}</span>
-                        <span class="live-name">${player.name}</span>
+                        <span class="live-name">${player.name} (${player.displayId})</span>
                         <span class="live-score">${player.score}</span>
                         <span class="live-status">${player.status === 'ready' ? '✅' : '⏳'}</span>
                     `;
@@ -1395,13 +1443,23 @@
             });
         }
 
-        // Player side
-        function listenForGameOnPlayerSide(roomKey) {
-            const roomRef = realtimeDb.ref(`rooms/${roomKey}`);
-            roomRef.on('value', (snapshot) => {
+        function listenAnsweredCount() {
+            const room = currentGameRoom;
+            realtimeDb.ref('rooms/' + room + '/answers').on('value', snapshot => {
+                const answers = snapshot.val() || {};
+                const answered = Object.keys(answers).filter(key => answers[key].questionIndex === currentQuestionIndex).length;
+                document.getElementById('answeredIndicator').textContent = `${answered} peserta sudah menjawab`;
+            });
+        }
+
+        // Player side: listen for game changes
+        function listenForGame() {
+            if (!currentRoom) return;
+            const roomRef = realtimeDb.ref('rooms/' + currentRoom);
+            roomRef.on('value', snapshot => {
                 const roomData = snapshot.val();
                 if (!roomData) {
-                    // Room dihapus
+                    // Room deleted, back to lobby
                     document.getElementById('gameArea').style.display = 'none';
                     document.getElementById('lobbyContainer').style.display = 'flex';
                     document.getElementById('lobbyStatus').textContent = 'Room telah direset.';
@@ -1410,8 +1468,8 @@
                 if (roomData.status === 'started') {
                     totalQuestions = roomData.totalQuestions;
                     currentQuestionIndex = roomData.currentQuestionIndex || 0;
-                    if (currentQuestionIndex < totalQuestions && roomData.currentQuestion) {
-                        displayQuestionForPlayer(roomData.currentQuestion.question, roomData.currentQuestion.index);
+                    if (roomData.currentQuestion && currentQuestionIndex < totalQuestions) {
+                        displayQuestion(roomData.currentQuestion.question, currentQuestionIndex);
                     } else if (currentQuestionIndex >= totalQuestions) {
                         endGameForPlayer();
                     }
@@ -1421,36 +1479,22 @@
             });
         }
 
-        function displayQuestionForPlayer(question, index) {
-            currentQuestion = question;
+        function displayQuestion(question, index) {
             currentQuestionIndex = index;
             const gameArea = document.getElementById('gameArea');
-            let questionHTML = `
+            let html = `
                 <div class="question-card">
-                    <div class="question-category">📚 ${question.type === 'multiple' ? 'Pilihan Ganda' : 'Isi Jawaban'}</div>
+                    <div class="question-category">📚 Pilihan Ganda</div>
                     <div class="question-timer" id="questionTimer">30</div>
-                    <div class="question-text">${question.question}</div>
+                    <div class="question-text">${question.text}</div>
+                    <div class="options-grid">
             `;
-            if (question.type === 'multiple') {
-                questionHTML += `<div class="options-grid">`;
-                question.options.forEach((option, idx) => {
-                    questionHTML += `
-                        <button class="option-btn" onclick="checkAnswer(${idx})">
-                            ${String.fromCharCode(65 + idx)}. ${option}
-                        </button>
-                    `;
-                });
-                questionHTML += `</div>`;
-            } else {
-                questionHTML += `
-                    <div class="numeric-input-container">
-                        <input type="text" id="numericAnswer" class="numeric-input" placeholder="Ketik jawaban kamu" autofocus>
-                        <button class="submit-numeric" onclick="checkNumericAnswer()">Jawab!</button>
-                    </div>
-                `;
-            }
-            questionHTML += `</div>`;
-            gameArea.innerHTML = questionHTML;
+            question.options.forEach((opt, i) => {
+                html += `<button class="option-btn" onclick="checkAnswer(${i})">${String.fromCharCode(65+i)}. ${opt}</button>`;
+            });
+            html += `</div></div>`;
+            gameArea.innerHTML = html;
+            // Start timer
             questionTimeLeft = 30;
             startQuestionTimer();
         }
@@ -1459,11 +1503,11 @@
             if (questionTimer) clearInterval(questionTimer);
             questionTimer = setInterval(() => {
                 questionTimeLeft--;
-                const timerElement = document.getElementById('questionTimer');
-                if (timerElement) {
-                    timerElement.textContent = questionTimeLeft;
-                    if (questionTimeLeft <= 5) timerElement.style.color = '#FF6B6B';
-                    else if (questionTimeLeft <= 10) timerElement.style.color = '#FECA57';
+                const timerEl = document.getElementById('questionTimer');
+                if (timerEl) {
+                    timerEl.textContent = questionTimeLeft;
+                    if (questionTimeLeft <= 5) timerEl.style.color = '#FF6B6B';
+                    else if (questionTimeLeft <= 10) timerEl.style.color = '#FECA57';
                 }
                 if (questionTimeLeft <= 0) {
                     clearInterval(questionTimer);
@@ -1472,23 +1516,16 @@
             }, 1000);
         }
 
-        function checkAnswer(selectedIndex) {
+        function checkAnswer(index) {
             clearInterval(questionTimer);
-            const isCorrect = selectedIndex === currentQuestion.correct;
+            const isCorrect = index === currentQuestion.correct;
+            // Visual feedback
             const buttons = document.querySelectorAll('.option-btn');
-            buttons.forEach((btn, idx) => {
-                if (idx === currentQuestion.correct) btn.classList.add('correct');
-                else if (idx === selectedIndex) btn.classList.add('wrong');
+            buttons.forEach((btn, i) => {
+                if (i === currentQuestion.correct) btn.classList.add('correct');
+                else if (i === index) btn.classList.add('wrong');
                 btn.disabled = true;
             });
-            submitAnswer(isCorrect);
-        }
-
-        function checkNumericAnswer() {
-            clearInterval(questionTimer);
-            const answer = document.getElementById('numericAnswer').value.trim();
-            if (!answer) { alert('Isi jawaban dulu ya! 😊'); startQuestionTimer(); return; }
-            const isCorrect = answer.toLowerCase() === currentQuestion.correct.toLowerCase();
             submitAnswer(isCorrect);
         }
 
@@ -1501,11 +1538,18 @@
             } else {
                 playWrongSound();
             }
+            // Save answer to Firebase
             if (currentPlayer && currentRoom) {
-                realtimeDb.ref(`rooms/${currentRoom}/players/${currentPlayer.id}`).update({
+                realtimeDb.ref('rooms/' + currentRoom + '/answers/' + currentPlayer.key).set({
+                    questionIndex: currentQuestionIndex,
+                    isCorrect: isCorrect,
                     score: score,
-                    lastAnswerCorrect: isCorrect,
-                    answered: true
+                    timestamp: Date.now()
+                });
+                // Update player score
+                realtimeDb.ref('rooms/' + currentRoom + '/players/' + currentPlayer.key).update({
+                    score: score,
+                    lastAnswerCorrect: isCorrect
                 });
             }
         }
@@ -1529,19 +1573,21 @@
             document.getElementById('score').textContent = '0';
             document.getElementById('rank').textContent = '-';
             document.getElementById('questionNumber').textContent = '0/0';
+            // Re-listen to players in lobby
+            listenToPlayers(currentRoom);
         }
 
         // Admin end & reset
         function endGameAndReset() {
             if (!isAdmin || !currentGameRoom) return;
-            realtimeDb.ref(`rooms/${currentGameRoom}`).update({ status: 'ended' });
+            realtimeDb.ref('rooms/' + currentGameRoom).update({ status: 'ended' });
             setTimeout(() => {
-                realtimeDb.ref(`rooms/${currentGameRoom}`).remove()
+                // Remove entire room data
+                realtimeDb.ref('rooms/' + currentGameRoom).remove()
                     .then(() => {
                         console.log('Room dihapus.');
                         document.getElementById('adminDashboard').style.display = 'none';
                         document.getElementById('roomSelection').style.display = 'block';
-                        playersInRooms[currentGameRoom] = [];
                         renderRoomCards();
                         renderRoomSelection();
                         alert('✅ Room telah direset dan data dihapus.');
@@ -1559,19 +1605,69 @@
             }
         }
 
-        // Sound system (implementasi sederhana)
+        // Sound system (stubs)
         function initSoundSystem() {
             if (!soundContext) {
                 soundContext = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
-        function playCorrectSound() { /* beep */ }
-        function playWrongSound() { /* buzz */ }
-        function playGameStartSound() { /* melody */ }
-        function toggleMusic() { musicEnabled = !musicEnabled; document.getElementById('musicControl').textContent = musicEnabled ? '🔊' : '🔇'; }
-        function createConfetti() { /* confetti */ }
+        function playCorrectSound() {
+            if (!musicEnabled || !soundContext) return;
+            const osc = soundContext.createOscillator();
+            const gain = soundContext.createGain();
+            osc.connect(gain); gain.connect(soundContext.destination);
+            osc.frequency.value = 800; osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, soundContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.3);
+            osc.start(); osc.stop(soundContext.currentTime + 0.3);
+        }
+        function playWrongSound() {
+            if (!musicEnabled || !soundContext) return;
+            const osc = soundContext.createOscillator();
+            const gain = soundContext.createGain();
+            osc.connect(gain); gain.connect(soundContext.destination);
+            osc.frequency.value = 200; osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.3, soundContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.5);
+            osc.start(); osc.stop(soundContext.currentTime + 0.5);
+        }
+        function playGameStartSound() {
+            if (!musicEnabled || !soundContext) return;
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((note, idx) => {
+                setTimeout(() => {
+                    const osc = soundContext.createOscillator();
+                    const gain = soundContext.createGain();
+                    osc.connect(gain); gain.connect(soundContext.destination);
+                    osc.frequency.value = note; osc.type = 'sine';
+                    gain.gain.setValueAtTime(0.3, soundContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + 0.2);
+                    osc.start(); osc.stop(soundContext.currentTime + 0.2);
+                }, idx * 200);
+            });
+        }
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            document.getElementById('musicControl').textContent = musicEnabled ? '🔊' : '🔇';
+        }
+        function createConfetti() {
+            const colors = ['#FF6B6B', '#FECA57', '#1DD1A1', '#48DBFB', '#FF9FF3', '#54A0FF'];
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 2 + 1 + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
 
-        // Helper
+        // Helper functions
         function getCurrentGrade() {
             if (score < 100) return 1;
             if (score < 200) return 2;
@@ -1587,14 +1683,16 @@
             const bank = questionBank[subject];
             let gradeQuestions = bank[grade];
             if (!gradeQuestions || gradeQuestions.length === 0) {
-                gradeQuestions = bank[1]; // fallback
+                gradeQuestions = bank[1];
             }
-            return gradeQuestions[Math.floor(Math.random() * gradeQuestions.length)];
+            const q = gradeQuestions[Math.floor(Math.random() * gradeQuestions.length)];
+            return { q: q.q, opts: q.opts, ans: q.ans };
         }
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', () => {
             initializeRooms();
+            initSoundSystem();
 
             // Login admin link
             document.getElementById('linkAdminLogin').addEventListener('click', (e) => {
@@ -1602,32 +1700,57 @@
                 showAdminLogin();
             });
 
-            // Tombol login admin di modal
-            document.getElementById('btnAdminLogin').addEventListener('click', () => {
-                adminLogin();
-            });
+            // Admin login button
+            document.getElementById('btnAdminLogin').addEventListener('click', adminLogin);
 
-            // Tombol batal
+            // Cancel admin
             document.getElementById('btnCancelAdmin').addEventListener('click', hideAdminLogin);
 
-            // Tombol masuk room
+            // Enter room button
             document.getElementById('btnEnterRoom').addEventListener('click', enterRoom);
 
-            // Tombol keluar room
-            document.getElementById('btnLeaveRoom').addEventListener('click', leaveRoom);
+            // Leave room button
+            document.getElementById('btnLeaveRoom').addEventListener('click', () => {
+                if (currentPlayer && currentRoom) {
+                    realtimeDb.ref('rooms/' + currentRoom + '/players/' + currentPlayer.key).remove();
+                    document.getElementById('gameContainer').style.display = 'none';
+                    document.getElementById('loginScreen').style.display = 'block';
+                    currentPlayer = null;
+                    currentRoom = null;
+                }
+            });
 
-            // Tombol next question di admin
+            // Admin next question
             document.getElementById('btnNextQuestion').addEventListener('click', nextQuestion);
 
-            // Tombol end & reset
+            // Admin end & reset
             document.getElementById('btnEndReset').addEventListener('click', endGameAndReset);
 
-            // Tombol close game over
+            // Close game over
             document.getElementById('btnCloseGameOver').addEventListener('click', closeGameOver);
 
             // Music toggle
             document.getElementById('musicControl').addEventListener('click', toggleMusic);
         });
+
+        // Player listens to game changes after entering room
+        function setupPlayerGameListener() {
+            if (currentRoom) {
+                listenForGame();
+            }
+        }
+
+        // Override enterRoom to call setupPlayerGameListener
+        const originalEnterRoom = enterRoom;
+        enterRoom = function() {
+            originalEnterRoom();
+            setupPlayerGameListener();
+            // Show lobby then switch to game area when started
+            // The listener will handle displaying question card
+        };
+
+        // Ensure admin does not get player ID
+        // (Handled by adminLogin not setting currentPlayer)
     </script>
 </body>
 </html>
