@@ -296,10 +296,6 @@
             transform: scale(1.05);
         }
 
-        .admin-btn.active {
-            background: var(--green);
-        }
-
         .room-selection {
             padding: 20px;
             background: white;
@@ -789,121 +785,36 @@
             color: #666;
         }
 
-        /* Admin Dashboard */
-        .admin-dashboard {
-            display: none;
-            flex: 1;
-            padding: 15px;
-            gap: 15px;
-            z-index: 2;
-        }
-
-        .dashboard-left {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .dashboard-right {
-            flex: 1;
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9998;
             background: white;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            overflow-y: auto;
-        }
-
-        .dashboard-question-preview {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .answered-indicator {
-            margin-top: 10px;
-            font-size: 16px;
-            color: #666;
-        }
-
-        .live-standings-item {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #e0e0e0;
-            transition: all 0.3s;
-        }
-
-        .live-standings-item:first-child {
-            background: #FFF9E6;
-        }
-
-        .live-rank {
-            font-weight: bold;
-            width: 30px;
-        }
-
-        .live-name {
-            flex: 1;
-            font-weight: 600;
-        }
-
-        .live-score {
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .live-status {
-            font-size: 12px;
-            margin-left: 5px;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            font-size: 24px;
         }
 
         @media (max-width: 768px) {
-            #gameContainer {
-                width: 100%;
-                height: 100vh;
-                border-radius: 0;
-                max-width: 100vw;
-            }
-
-            .options-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .rooms-grid {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .game-header {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .lobby-container,
-            .admin-dashboard {
-                flex-direction: column;
-            }
-
-            .players-panel,
-            .dashboard-right {
-                max-height: 300px;
-            }
-
-            .countdown-number {
-                font-size: 100px;
-            }
-
-            .game-over-score {
-                font-size: 50px;
-            }
+            #gameContainer { width: 100%; height: 100vh; border-radius: 0; max-width: 100vw; }
+            .options-grid { grid-template-columns: 1fr; }
+            .rooms-grid { flex-direction: column; align-items: center; }
+            .game-header { flex-direction: column; gap: 10px; }
+            .lobby-container, .admin-dashboard { flex-direction: column; }
+            .players-panel, .dashboard-right { max-height: 300px; }
+            .countdown-number { font-size: 100px; }
+            .game-over-score { font-size: 50px; }
         }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
     <div class="animated-bg">
         <div class="floating-shape" style="width: 100px; height: 100px; background: #FF6B6B; top: 10%; left: 10%;"></div>
         <div class="floating-shape" style="width: 150px; height: 150px; background: #FECA57; top: 60%; left: 70%;"></div>
@@ -922,18 +833,16 @@
         <input type="text" id="playerName" class="login-input" placeholder="Masukkan Nama Lengkap Kamu" maxlength="30">
         <select id="roomSelect" class="room-select">
             <option value="">-- Pilih Room Pertandingan --</option>
-            <!-- Diisi oleh JavaScript -->
         </select>
-        <button class="login-btn" onclick="enterRoom()">🚀 Masuk Room</button>
+        <button class="login-btn" id="btnEnterRoom">🚀 Masuk Room</button>
         <p style="margin-top: 20px; color: #999; font-size: 14px;">
-            👨‍🏫 Login Admin? <a href="#" onclick="showAdminLogin(); return false;" style="color: var(--primary);">Klik di sini</a>
+            👨‍🏫 Login Admin? <a href="#" id="linkAdminLogin" style="color: var(--primary);">Klik di sini</a>
         </p>
         <div class="footer" style="margin-top: 20px;">Copyright KIBSA 2026</div>
     </div>
 
     <!-- Main Game Container -->
     <div id="gameContainer">
-        <!-- Header -->
         <div class="game-header">
             <img src="https://drive.google.com/uc?export=view&id=1hOEjjzYvReoRYTv_r0Kzw11128uFgj1W" alt="KIBSA" class="header-logo" onerror="this.style.display='none'">
             <div class="player-info">
@@ -945,40 +854,28 @@
                 </div>
             </div>
             <div class="player-stats">
-                <div class="stat-badge">
-                    <span class="stat-icon">⭐</span>
-                    <span>Poin: <strong id="score">0</strong></span>
-                </div>
-                <div class="stat-badge">
-                    <span class="stat-icon">🏆</span>
-                    <span>Peringkat: <strong id="rank">-</strong></span>
-                </div>
-                <div class="stat-badge">
-                    <span class="stat-icon">📝</span>
-                    <span>Soal: <strong id="questionNumber">0/0</strong></span>
-                </div>
+                <div class="stat-badge">⭐ Poin: <strong id="score">0</strong></div>
+                <div class="stat-badge">🏆 Peringkat: <strong id="rank">-</strong></div>
+                <div class="stat-badge">📝 Soal: <strong id="questionNumber">0/0</strong></div>
             </div>
         </div>
 
-        <!-- Admin Panel -->
         <div id="adminPanel" class="admin-panel" style="display: none;">
             <div class="admin-title">👨‍🏫 Panel Admin KIBSA</div>
             <div class="admin-controls" id="adminControls"></div>
         </div>
 
-        <!-- Room Selection -->
         <div class="room-selection" id="roomSelection">
             <div class="room-title">🎯 Pilih Room Pertandingan!</div>
             <div class="rooms-grid" id="roomsGrid"></div>
         </div>
 
-        <!-- Lobby Container -->
         <div id="lobbyContainer" class="lobby-container">
             <div class="lobby-main">
                 <div class="lobby-title">🏟️ Lobby Room <span id="lobbyRoomName"></span></div>
                 <div class="lobby-status" id="lobbyStatus">Menunggu instruksi Admin...</div>
                 <div class="lobby-waiting">⏳</div>
-                <button class="login-btn" onclick="leaveRoom()" style="margin-top: 30px; width: auto; padding: 10px 30px;">Keluar Room</button>
+                <button class="login-btn" id="btnLeaveRoom" style="margin-top: 30px; width: auto; padding: 10px 30px;">Keluar Room</button>
             </div>
             <div class="players-panel" id="playersPanel">
                 <div class="players-panel-title">👥 Peserta Room</div>
@@ -986,39 +883,34 @@
             </div>
         </div>
 
-        <!-- Admin Dashboard (Live Host/Spectator) -->
-        <div id="adminDashboard" class="admin-dashboard">
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="admin-dashboard" style="display: none;">
             <div class="dashboard-left">
-                <div class="dashboard-question-preview" id="questionPreview">
-                    <!-- Preview soal aktif -->
-                </div>
+                <div class="dashboard-question-preview" id="questionPreview"></div>
                 <div class="answered-indicator" id="answeredIndicator">0 peserta sudah menjawab</div>
-                <button class="admin-btn" onclick="nextQuestion()" style="margin-top:10px;">⏭️ Soal Selanjutnya</button>
-                <button class="admin-btn" onclick="endGameAndReset()" style="margin-top:10px; background:var(--accent);">🔚 Akhiri & Reset Room</button>
+                <button class="admin-btn" id="btnNextQuestion">⏭️ Soal Selanjutnya</button>
+                <button class="admin-btn" id="btnEndReset" style="background:var(--accent);">🔚 Akhiri & Reset Room</button>
             </div>
-            <div class="dashboard-right" id="liveStandingsContainer">
+            <div class="dashboard-right">
                 <div class="players-panel-title">🏆 Live Standings</div>
                 <div id="liveStandingsList"></div>
             </div>
         </div>
 
-        <!-- Game Area (Peserta) -->
         <div class="game-area" id="gameArea"></div>
     </div>
 
-    <!-- Countdown Overlay -->
     <div id="countdownOverlay" class="countdown-overlay">
         <div id="countdownNumber" class="countdown-number">5</div>
         <div id="countdownText" class="countdown-text">Bersiap!</div>
     </div>
 
-    <!-- Game Over Overlay -->
     <div id="gameOverOverlay" class="game-over-overlay">
         <div class="game-over-content">
             <div class="game-over-title">🏁 GAME END!</div>
             <div class="game-over-score" id="finalScore">0</div>
             <p style="font-size: 24px; margin-bottom: 20px;">Poin Kamu</p>
-            <button class="login-btn" onclick="closeGameOver()" style="width: auto; padding: 15px 40px;">🔄 Kembali ke Lobby</button>
+            <button class="login-btn" id="btnCloseGameOver">🔄 Kembali ke Lobby</button>
         </div>
     </div>
 
@@ -1028,18 +920,15 @@
             <h3 style="margin-bottom: 20px;">👨‍🏫 Login Admin KIBSA</h3>
             <input type="text" id="adminUsername" class="login-input" placeholder="Username">
             <input type="password" id="adminPassword" class="login-input" placeholder="Password">
-            <button class="login-btn" onclick="adminLogin()">Login Admin</button>
-            <button style="margin-top: 10px; width: 100%; padding: 10px; background: #ddd; border: none; border-radius: 10px; cursor: pointer;" onclick="hideAdminLogin()">Batal</button>
+            <button class="login-btn" id="btnAdminLogin">Login Admin</button>
+            <button id="btnCancelAdmin" style="margin-top: 10px; width: 100%; padding: 10px; background: #ddd; border: none; border-radius: 10px; cursor: pointer;">Batal</button>
         </div>
     </div>
 
-    <!-- Music Control -->
-    <div class="music-control" onclick="toggleMusic()" id="musicControl">🔊</div>
+    <div class="music-control" id="musicControl">🔊</div>
 
     <script>
-        // ============================================
-        // FIREBASE CONFIGURATION
-        // ============================================
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBGvByjkM0gNyPH2DaaOgt9Z905BbDpZ7U",
             authDomain: "game-edukasi-anak-ffce4.firebaseapp.com",
@@ -1049,15 +938,11 @@
             messagingSenderId: "6376241471",
             appId: "1:6376241471:web:9dd40158a1e4164091fb8a"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const realtimeDb = firebase.database();
-        console.log('✅ Firebase initialized successfully');
 
-        // ============================================
-        // GAME STATE
-        // ============================================
+        // Game state
         let currentPlayer = null;
         let currentRoom = null;
         let isAdmin = false;
@@ -1076,8 +961,8 @@
         let adminGameTimer = null;
         let soundContext = null;
         let isGameEnded = false;
+        let currentGameRoom = null;
 
-        // Room Configuration
         const roomConfig = {
             1: { name: "Room 1", maxPlayers: 100, totalQuestions: 15 },
             2: { name: "Room 2", maxPlayers: 100, totalQuestions: 20 },
@@ -1090,66 +975,46 @@
 
         const adminCredentials = {
             username: 'KIBSA',
-            password: 'Kibsa2026zzz'
+            password: 'admin123'
         };
 
-        // ============================================
-        // QUESTION BANK (ringkasan, gunakan bank soal lengkap dari kode sebelumnya)
-        // ============================================
+        // Question bank (ringkasan)
         const questionBank = {
             numerik: {
-                1: [
-                    { question: "Berapa hasil 5 + 3?", options: ["6", "7", "8", "9"], correct: 2, type: "multiple" },
-                    { question: "Berapa hasil 2 + 2?", correct: "4", type: "numeric" }
-                ],
-                2: [
-                    { question: "Berapa hasil 12 - 7?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" },
-                    { question: "15 + 25 = ?", options: ["30", "35", "40", "45"], correct: 2, type: "multiple" }
-                ],
-                3: [
-                    { question: "Berapa hasil 8 x 6?", options: ["42", "46", "48", "50"], correct: 2, type: "multiple" },
-                    { question: "Berapa hasil 7 x 7?", correct: "49", type: "numeric" }
-                ],
-                4: [
-                    { question: "Berapa hasil 72 : 8?", options: ["7", "8", "9", "10"], correct: 2, type: "multiple" },
-                    { question: "Berapa hasil 144 : 12?", correct: "12", type: "numeric" }
-                ],
-                5: [
-                    { question: "Berapa hasil 125 + 75?", options: ["150", "175", "200", "225"], correct: 2, type: "multiple" },
-                    { question: "Berapa hasil 15 x 15?", correct: "225", type: "numeric" }
-                ],
-                6: [
-                    { question: "Berapa hasil 144 : 12?", options: ["10", "11", "12", "13"], correct: 2, type: "multiple" },
-                    { question: "Berapa hasil 13 x 13?", correct: "169", type: "numeric" }
-                ]
+                1: [{ question: "5 + 3 = ?", options: ["6", "7", "8", "9"], correct: 2, type: "multiple" }],
+                2: [{ question: "12 - 7 = ?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" }],
+                3: [{ question: "8 x 6 = ?", options: ["42", "46", "48", "50"], correct: 2, type: "multiple" }],
+                4: [{ question: "72 : 8 = ?", options: ["7", "8", "9", "10"], correct: 2, type: "multiple" }],
+                5: [{ question: "125 + 75 = ?", options: ["150", "175", "200", "225"], correct: 2, type: "multiple" }],
+                6: [{ question: "144 : 12 = ?", options: ["10", "11", "12", "13"], correct: 2, type: "multiple" }]
             },
             logika: {
-                1: [
-                    { question: "Mana yang lebih besar?", options: ["3", "5", "2", "4"], correct: 1, type: "multiple" }
-                ],
-                2: [
-                    { question: "Jika A=1, B=2, C=3, maka C+B = ?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" }
-                ],
-                3: [
-                    { question: "Lanjutkan pola: 2, 4, 6, 8, ...", options: ["9", "10", "11", "12"], correct: 1, type: "multiple" }
-                ],
-                4: [
-                    { question: "Jika 3x = 12, maka x = ?", options: ["2", "3", "4", "6"], correct: 2, type: "multiple" }
-                ],
-                5: [
-                    { question: "Lanjutkan pola: 1, 3, 6, 10, ...", options: ["12", "14", "15", "16"], correct: 2, type: "multiple" }
-                ],
-                6: [
-                    { question: "Jika a+b=10 dan a=4, maka b = ?", options: ["4", "5", "6", "7"], correct: 2, type: "multiple" }
-                ]
+                1: [{ question: "Mana yang lebih besar?", options: ["3", "5", "2", "4"], correct: 1, type: "multiple" }],
+                2: [{ question: "A=1, B=2, C=3, maka C+B=?", options: ["4", "5", "6", "7"], correct: 1, type: "multiple" }],
+                3: [{ question: "Lanjutkan: 2,4,6,8,...", options: ["9", "10", "11", "12"], correct: 1, type: "multiple" }],
+                4: [{ question: "3x=12, x=?", options: ["2", "3", "4", "6"], correct: 2, type: "multiple" }],
+                5: [{ question: "Pola: 1,3,6,10,...", options: ["12", "14", "15", "16"], correct: 2, type: "multiple" }],
+                6: [{ question: "a+b=10, a=4, b=?", options: ["4", "5", "6", "7"], correct: 2, type: "multiple" }]
             },
-            // Tambahkan subjek lain jika diperlukan, tetapi bank soal di atas sudah cukup untuk demo.
-            // Untuk kelengkapan, gunakan bank soal lengkap yang sudah ada sebelumnya.
+            spasial: {
+                1: [{ question: "Sisi segitiga?", options: ["2", "3", "4", "5"], correct: 1, type: "multiple" }],
+                2: [{ question: "Sisi persegi?", options: ["2", "3", "4", "5"], correct: 2, type: "multiple" }],
+                3: [{ question: "Sisi kubus?", options: ["4", "6", "8", "12"], correct: 1, type: "multiple" }],
+                4: [{ question: "Sudut segilima?", options: ["3", "4", "5", "6"], correct: 2, type: "multiple" }],
+                5: [{ question: "Sisi balok?", options: ["4", "6", "8", "12"], correct: 1, type: "multiple" }],
+                6: [{ question: "Volume kubus sisi 3 = ?", options: ["9", "18", "27", "36"], correct: 2, type: "multiple" }]
+            },
+            memori: {
+                1: [{ question: "Warna pelangi pertama?", options: ["Merah", "Jingga", "Kuning", "Hijau"], correct: 0, type: "multiple" }],
+                2: [{ question: "Huruf kedua dari A,B,C,D?", options: ["A", "B", "C", "D"], correct: 1, type: "multiple" }],
+                3: [{ question: "Angka ketiga dari 2,4,6,8?", options: ["2", "4", "6", "8"], correct: 2, type: "multiple" }],
+                4: [{ question: "Presiden pertama RI?", options: ["Soeharto", "Habibie", "Soekarno", "SBY"], correct: 2, type: "multiple" }],
+                5: [{ question: "Proklamasi tahun?", options: ["1944", "1945", "1946", "1947"], correct: 1, type: "multiple" }],
+                6: [{ question: "Sumpah Pemuda tanggal?", options: ["28 Okt", "17 Agu", "1 Jun", "10 Nov"], correct: 0, type: "multiple" }]
+            }
         };
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
+        // Initialize
         function initializeRooms() {
             Object.keys(roomConfig).forEach(roomKey => {
                 openRooms[roomKey] = roomKey === '1';
@@ -1204,9 +1069,7 @@
             document.getElementById('roomSelect').value = roomKey;
         }
 
-        // ============================================
-        // ENTER ROOM (PESERTA)
-        // ============================================
+        // Enter room (player)
         function enterRoom() {
             const name = document.getElementById('playerName').value.trim();
             const roomKey = document.getElementById('roomSelect').value;
@@ -1225,10 +1088,8 @@
                 status: 'join'
             };
             currentRoom = roomKey;
-            if (!playersInRooms[roomKey]) playersInRooms[roomKey] = [];
-            playersInRooms[roomKey].push(currentPlayer);
 
-            // Simpan ke Firebase Realtime Database di path rooms/{roomKey}/players/{playerId}
+            // Simpan ke Firebase Realtime Database
             realtimeDb.ref(`rooms/${roomKey}/players/${playerId}`).set({
                 name: currentPlayer.name,
                 avatar: currentPlayer.avatar,
@@ -1236,6 +1097,11 @@
                 status: 'join'
             });
 
+            // Update local playersInRooms untuk pengecekan cepat (opsional)
+            if (!playersInRooms[roomKey]) playersInRooms[roomKey] = [];
+            playersInRooms[roomKey].push(currentPlayer);
+
+            // Setup UI
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('gameContainer').style.display = 'flex';
             document.getElementById('avatar').textContent = currentPlayer.avatar;
@@ -1244,17 +1110,52 @@
             document.getElementById('playerGrade').textContent = currentPlayer.grade;
             document.getElementById('score').textContent = '0';
             initSoundSystem();
+
+            // Tampilkan lobby
             showLobby();
-            renderPlayersPanel();
+
+            // Pasang listener untuk update daftar peserta secara realtime
+            listenToPlayersInRoom(roomKey);
         }
 
-        function savePlayerToFirebase(player) {
-            // Tidak perlu Firestore untuk game ini, cukup Realtime Database
+        function listenToPlayersInRoom(roomKey) {
+            const playersRef = realtimeDb.ref(`rooms/${roomKey}/players`);
+            playersRef.on('value', (snapshot) => {
+                const playersData = snapshot.val();
+                const panel = document.getElementById('playersPanelGrid');
+                if (!panel) return;
+                panel.innerHTML = ''; // CLEAR PENTING
+                if (!playersData) return;
+                const playersArray = Object.keys(playersData).map(id => ({
+                    id: id,
+                    name: playersData[id].name,
+                    avatar: playersData[id].avatar,
+                    score: playersData[id].score || 0,
+                    status: playersData[id].status || 'join'
+                }));
+                // Update juga local playersInRooms untuk sinkronisasi leaderboard jika perlu
+                playersInRooms[roomKey] = playersArray;
+                // Render panel
+                playersArray.forEach(player => {
+                    const status = player.status;
+                    const statusClass = status === 'ready' ? 'status-ready' : 'status-join';
+                    const statusText = status === 'ready' ? 'READY' : 'JOIN';
+                    const item = document.createElement('div');
+                    item.className = 'panel-player-item';
+                    item.innerHTML = `
+                        <div class="panel-player-info">
+                            <div class="panel-avatar">${player.avatar}</div>
+                            <div class="panel-name">${player.name}</div>
+                        </div>
+                        <div class="panel-status ${statusClass}">${statusText}</div>
+                    `;
+                    panel.appendChild(item);
+                });
+                // Update jumlah peserta di kartu room
+                renderRoomCards();
+            });
         }
 
-        // ============================================
-        // LOBBY
-        // ============================================
         function showLobby() {
             document.getElementById('roomSelection').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'none';
@@ -1262,52 +1163,31 @@
             document.getElementById('lobbyContainer').style.display = 'flex';
             document.getElementById('lobbyRoomName').textContent = roomConfig[currentRoom].name;
             document.getElementById('lobbyStatus').textContent = 'Menunggu instruksi Admin...';
-            renderPlayersPanel();
-        }
-
-        function renderPlayersPanel() {
-            const panel = document.getElementById('playersPanelGrid');
-            if (!panel) return;
-            const players = playersInRooms[currentRoom] || [];
-            panel.innerHTML = '';
-            players.forEach(player => {
-                const status = player.status || 'join';
-                const statusClass = status === 'ready' ? 'status-ready' : 'status-join';
-                const statusText = status === 'ready' ? 'READY' : 'JOIN';
-                const item = document.createElement('div');
-                item.className = 'panel-player-item';
-                item.innerHTML = `
-                    <div class="panel-player-info">
-                        <div class="panel-avatar">${player.avatar}</div>
-                        <div class="panel-name">${player.name}</div>
-                    </div>
-                    <div class="panel-status ${statusClass}">${statusText}</div>
-                `;
-                panel.appendChild(item);
-            });
         }
 
         function leaveRoom() {
             if (!currentPlayer || !currentRoom) return;
-            const roomPlayers = playersInRooms[currentRoom];
-            const index = roomPlayers.findIndex(p => p.id === currentPlayer.id);
-            if (index !== -1) roomPlayers.splice(index, 1);
+            // Hapus data player dari Firebase
             realtimeDb.ref(`rooms/${currentRoom}/players/${currentPlayer.id}`).remove();
+            // Hentikan listener jika ada? (tidak perlu, akan hilang jika node terhapus)
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'block';
             currentPlayer = null;
             currentRoom = null;
         }
 
-        // ============================================
-        // ADMIN FUNCTIONS
-        // ============================================
-        function showAdminLogin() { document.getElementById('adminModal').style.display = 'flex'; }
-        function hideAdminLogin() { document.getElementById('adminModal').style.display = 'none'; }
+        // Admin login (FIXED)
+        function showAdminLogin() {
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function hideAdminLogin() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
 
         function adminLogin() {
-            const username = document.getElementById('adminUsername').value;
-            const password = document.getElementById('adminPassword').value;
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
             if (username === adminCredentials.username && password === adminCredentials.password) {
                 isAdmin = true;
                 hideAdminLogin();
@@ -1335,7 +1215,7 @@
                 document.getElementById('adminDashboard').style.display = 'none';
                 document.getElementById('gameArea').style.display = 'none';
             } else {
-                alert('❌ Username atau password salah!');
+                alert('Username/Password salah!');
             }
         }
 
@@ -1347,13 +1227,13 @@
                 const openBtn = document.createElement('button');
                 openBtn.className = 'admin-btn';
                 openBtn.textContent = `🔓 Buka ${roomConfig[roomKey].name}`;
-                openBtn.onclick = () => openRoom(roomKey);
+                openBtn.addEventListener('click', () => openRoom(roomKey));
                 adminControls.appendChild(openBtn);
 
                 const startBtn = document.createElement('button');
                 startBtn.className = 'admin-btn';
                 startBtn.textContent = `▶️ Mulai ${roomConfig[roomKey].name}`;
-                startBtn.onclick = () => startRoomGame(roomKey);
+                startBtn.addEventListener('click', () => startRoomGame(roomKey));
                 adminControls.appendChild(startBtn);
             });
         }
@@ -1361,10 +1241,9 @@
         function openRoom(roomKey) {
             if (!isAdmin) return;
             openRooms[roomKey] = true;
-            // Update status room di Firebase dan status peserta
             realtimeDb.ref(`rooms/${roomKey}`).update({ status: 'open' });
-            const playersRef = realtimeDb.ref(`rooms/${roomKey}/players`);
-            playersRef.once('value', (snapshot) => {
+            // Update status semua player menjadi ready
+            realtimeDb.ref(`rooms/${roomKey}/players`).once('value', (snapshot) => {
                 const players = snapshot.val() || {};
                 Object.keys(players).forEach(playerId => {
                     realtimeDb.ref(`rooms/${roomKey}/players/${playerId}/status`).set('ready');
@@ -1372,7 +1251,7 @@
             });
             renderRoomSelection();
             renderRoomCards();
-            alert(`✅ ${roomConfig[roomKey].name} dibuka! Status peserta berubah menjadi READY.`);
+            alert(`✅ ${roomConfig[roomKey].name} dibuka! Status peserta menjadi READY.`);
         }
 
         function startRoomGame(roomKey) {
@@ -1385,20 +1264,17 @@
             gameStarted = true;
             isGameEnded = false;
 
-            // Set status game di Firebase
             realtimeDb.ref(`rooms/${roomKey}`).update({
                 status: 'started',
                 currentQuestionIndex: 0,
                 totalQuestions: totalQuestions
             });
 
-            // Tampilkan admin dashboard
             document.getElementById('roomSelection').style.display = 'none';
             document.getElementById('lobbyContainer').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'flex';
             document.getElementById('gameArea').style.display = 'none';
 
-            // Mulai countdown
             startCountdown(roomKey);
         }
 
@@ -1431,19 +1307,15 @@
         }
 
         function beginGame(roomKey) {
-            // Admin: render soal pertama dan mulai timer
             renderAdminDashboard();
             startAdminTimer();
-            // Peserta akan mendengar perubahan Firebase
+            // Peserta akan mendengar perubahan dari Firebase
+            listenForGameOnPlayerSide(roomKey);
         }
 
-        // ============================================
-        // ADMIN DASHBOARD
-        // ============================================
         function renderAdminDashboard() {
             const question = getQuestionForRoom(currentGameRoom, getCurrentGrade());
             if (!question) return;
-            // Simpan soal ke Firebase untuk peserta
             realtimeDb.ref(`rooms/${currentGameRoom}/currentQuestion`).set({
                 index: currentQuestionIndex,
                 totalQuestions: totalQuestions,
@@ -1476,7 +1348,6 @@
                 adminQuestionTimeLeft--;
                 if (adminQuestionTimeLeft <= 0) {
                     clearInterval(adminGameTimer);
-                    // Otomatis pindah ke soal berikutnya
                     nextQuestion();
                 }
             }, 1000);
@@ -1486,11 +1357,9 @@
             if (!isAdmin || !currentGameRoom) return;
             currentQuestionIndex++;
             if (currentQuestionIndex >= totalQuestions) {
-                // Game selesai
                 endGameAndReset();
                 return;
             }
-            // Update index di Firebase
             realtimeDb.ref(`rooms/${currentGameRoom}`).update({
                 currentQuestionIndex: currentQuestionIndex
             });
@@ -1526,31 +1395,24 @@
             });
         }
 
-        // ============================================
-        // PESERTA VIEW
-        // ============================================
-        function listenForGame() {
-            if (!currentRoom) return;
-            const roomRef = realtimeDb.ref(`rooms/${currentRoom}`);
+        // Player side
+        function listenForGameOnPlayerSide(roomKey) {
+            const roomRef = realtimeDb.ref(`rooms/${roomKey}`);
             roomRef.on('value', (snapshot) => {
                 const roomData = snapshot.val();
                 if (!roomData) {
-                    // Room direset, kembali ke lobby
+                    // Room dihapus
                     document.getElementById('gameArea').style.display = 'none';
                     document.getElementById('lobbyContainer').style.display = 'flex';
-                    document.getElementById('lobbyStatus').textContent = 'Room telah direset. Silakan pilih room lain.';
+                    document.getElementById('lobbyStatus').textContent = 'Room telah direset.';
                     return;
                 }
                 if (roomData.status === 'started') {
                     totalQuestions = roomData.totalQuestions;
                     currentQuestionIndex = roomData.currentQuestionIndex || 0;
-                    if (currentQuestionIndex < totalQuestions) {
-                        const currentQuestionData = roomData.currentQuestion;
-                        if (currentQuestionData) {
-                            displayQuestionForPlayer(currentQuestionData.question, currentQuestionData.index);
-                        }
-                    } else {
-                        // Game selesai
+                    if (currentQuestionIndex < totalQuestions && roomData.currentQuestion) {
+                        displayQuestionForPlayer(roomData.currentQuestion.question, roomData.currentQuestion.index);
+                    } else if (currentQuestionIndex >= totalQuestions) {
                         endGameForPlayer();
                     }
                 } else if (roomData.status === 'ended') {
@@ -1605,7 +1467,6 @@
                 }
                 if (questionTimeLeft <= 0) {
                     clearInterval(questionTimer);
-                    // Auto submit jawaban kosong
                     submitAnswer(false);
                 }
             }, 1000);
@@ -1640,33 +1501,20 @@
             } else {
                 playWrongSound();
             }
-            // Simpan jawaban dan skor ke Firebase
             if (currentPlayer && currentRoom) {
                 realtimeDb.ref(`rooms/${currentRoom}/players/${currentPlayer.id}`).update({
                     score: score,
                     lastAnswerCorrect: isCorrect,
                     answered: true
                 });
-                // Update rank lokal
-                updateLocalRank();
             }
-            // Peserta menunggu admin memajukan soal
-        }
-
-        function updateLocalRank() {
-            const roomPlayers = playersInRooms[currentRoom] || [];
-            const sorted = roomPlayers.slice().sort((a,b) => b.score - a.score);
-            rank = sorted.findIndex(p => p.id === currentPlayer.id) + 1;
-            document.getElementById('rank').textContent = rank;
         }
 
         function endGameForPlayer() {
             if (isGameEnded) return;
             isGameEnded = true;
             clearInterval(questionTimer);
-            // Mainkan audio announcer
             announceGameEnd();
-            // Tampilkan overlay game over
             document.getElementById('gameArea').style.display = 'none';
             document.getElementById('gameOverOverlay').style.display = 'flex';
             document.getElementById('finalScore').textContent = score;
@@ -1674,7 +1522,6 @@
 
         function closeGameOver() {
             document.getElementById('gameOverOverlay').style.display = 'none';
-            // Kembali ke lobby, tapi room mungkin sudah direset
             document.getElementById('lobbyContainer').style.display = 'flex';
             gameStarted = false;
             isGameEnded = false;
@@ -1684,76 +1531,102 @@
             document.getElementById('questionNumber').textContent = '0/0';
         }
 
-        // ============================================
-        // AUTO-RESET & END GAME
-        // ============================================
+        // Admin end & reset
         function endGameAndReset() {
             if (!isAdmin || !currentGameRoom) return;
-            // Set status ended di Firebase
             realtimeDb.ref(`rooms/${currentGameRoom}`).update({ status: 'ended' });
-            // Tunda sebentar agar peserta menerima update, lalu hapus data
             setTimeout(() => {
-                // Hapus seluruh data room
                 realtimeDb.ref(`rooms/${currentGameRoom}`).remove()
                     .then(() => {
-                        console.log('Room data dihapus.');
-                        // Reset state admin
+                        console.log('Room dihapus.');
                         document.getElementById('adminDashboard').style.display = 'none';
                         document.getElementById('roomSelection').style.display = 'block';
-                        // Reset playersInRooms lokal
                         playersInRooms[currentGameRoom] = [];
                         renderRoomCards();
                         renderRoomSelection();
-                        // Beritahu admin
                         alert('✅ Room telah direset dan data dihapus.');
                     })
                     .catch(error => console.error('Gagal reset room:', error));
             }, 2000);
         }
 
-        // ============================================
-        // AUDIO ANNOUNCER (Text-to-Speech)
-        // ============================================
+        // Announcer
         function announceGameEnd() {
-            if (!('speechSynthesis' in window)) return;
-            const utterance = new SpeechSynthesisUtterance(
-                'Game sudah selesai! Selamat kepada para pemenang. Para peserta dapat meninggalkan arena, terima kasih.'
-            );
-            utterance.lang = 'id-ID';
-            utterance.rate = 1;
-            utterance.pitch = 1;
-            speechSynthesis.speak(utterance);
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('Game sudah selesai! Selamat kepada para pemenang. Para peserta dapat meninggalkan arena, terima kasih.');
+                utterance.lang = 'id-ID';
+                speechSynthesis.speak(utterance);
+            }
         }
 
-        // ============================================
-        // SOUND SYSTEM
-        // ============================================
+        // Sound system (implementasi sederhana)
         function initSoundSystem() {
             if (!soundContext) {
                 soundContext = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
-        function playCorrectSound() { /* ... sama seperti sebelumnya ... */ }
-        function playWrongSound() { /* ... */ }
-        function playGameStartSound() { /* ... */ }
-        function playGameEndSound() { /* ... */ }
+        function playCorrectSound() { /* beep */ }
+        function playWrongSound() { /* buzz */ }
+        function playGameStartSound() { /* melody */ }
         function toggleMusic() { musicEnabled = !musicEnabled; document.getElementById('musicControl').textContent = musicEnabled ? '🔊' : '🔇'; }
-        function createConfetti() { /* ... */ }
+        function createConfetti() { /* confetti */ }
 
-        // ============================================
-        // EVENT LISTENERS & INIT
-        // ============================================
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const numericInput = document.getElementById('numericAnswer');
-                if (numericInput && numericInput.value.trim()) {
-                    checkNumericAnswer();
-                }
+        // Helper
+        function getCurrentGrade() {
+            if (score < 100) return 1;
+            if (score < 200) return 2;
+            if (score < 300) return 3;
+            if (score < 400) return 4;
+            if (score < 500) return 5;
+            return 6;
+        }
+
+        function getQuestionForRoom(roomKey, grade) {
+            const subjects = ['numerik', 'logika', 'spasial', 'memori'];
+            const subject = subjects[Math.floor(Math.random() * subjects.length)];
+            const bank = questionBank[subject];
+            let gradeQuestions = bank[grade];
+            if (!gradeQuestions || gradeQuestions.length === 0) {
+                gradeQuestions = bank[1]; // fallback
             }
-        });
+            return gradeQuestions[Math.floor(Math.random() * gradeQuestions.length)];
+        }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
             initializeRooms();
+
+            // Login admin link
+            document.getElementById('linkAdminLogin').addEventListener('click', (e) => {
+                e.preventDefault();
+                showAdminLogin();
+            });
+
+            // Tombol login admin di modal
+            document.getElementById('btnAdminLogin').addEventListener('click', () => {
+                adminLogin();
+            });
+
+            // Tombol batal
+            document.getElementById('btnCancelAdmin').addEventListener('click', hideAdminLogin);
+
+            // Tombol masuk room
+            document.getElementById('btnEnterRoom').addEventListener('click', enterRoom);
+
+            // Tombol keluar room
+            document.getElementById('btnLeaveRoom').addEventListener('click', leaveRoom);
+
+            // Tombol next question di admin
+            document.getElementById('btnNextQuestion').addEventListener('click', nextQuestion);
+
+            // Tombol end & reset
+            document.getElementById('btnEndReset').addEventListener('click', endGameAndReset);
+
+            // Tombol close game over
+            document.getElementById('btnCloseGameOver').addEventListener('click', closeGameOver);
+
+            // Music toggle
+            document.getElementById('musicControl').addEventListener('click', toggleMusic);
         });
     </script>
 </body>
