@@ -35,6 +35,8 @@
         .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
         .floating-shape { position: absolute; border-radius: 50%; animation: float 15s infinite; opacity: 0.3; }
         @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } }
+
+        /* Login card */
         .login-card {
             background: rgba(255,255,255,0.95);
             border-radius: var(--border-radius);
@@ -98,6 +100,8 @@
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .btn-primary::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255,255,255,0.3); border-radius: 50%; transform: translate(-50%,-50%); transition: width 0.6s, height 0.6s; }
         .btn-primary:hover::after { width: 300px; height: 300px; }
+
+        /* Footer */
         .footer {
             position: fixed;
             bottom: 0;
@@ -115,6 +119,7 @@
         }
         .footer-left { text-align: left; }
         .footer-right { text-align: right; }
+
         #mainContainer { display: none; width: 100%; height: 100vh; flex-direction: column; background: #f0f0f0; }
         .header {
             background: var(--gradient);
@@ -132,6 +137,8 @@
         .header-right { display: flex; align-items: center; gap: 20px; }
         .player-badge { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; }
         .player-avatar { width: 40px; height: 40px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 20px; }
+
+        /* Room menu - 2 column desktop */
         .room-menu { flex: 1; padding: 20px; overflow-y: auto; display: flex; gap: 20px; align-items: flex-start; }
         .room-menu-left { flex: 2; display: flex; flex-direction: column; gap: 20px; }
         .room-menu-title { font-size: 28px; color: var(--primary); text-align: center; }
@@ -153,6 +160,8 @@
         .room-name { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 5px; }
         .room-info { font-size: 13px; color: #666; margin-bottom: 10px; }
         .room-lock-icon { position: absolute; top: 10px; right: 10px; font-size: 24px; }
+
+        /* Sidebar ulasan */
         .room-menu-right {
             flex: 1;
             min-width: 280px;
@@ -173,6 +182,8 @@
         .ulasan-detail { flex: 1; font-size: 14px; }
         .ulasan-name { font-weight: bold; color: #333; }
         .ulasan-emoji { font-size: 24px; }
+
+        /* Game area */
         .game-area { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
         .focus-box { background: white; border-radius: 30px; padding: 40px; width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideIn 0.5s ease; position: relative; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -203,10 +214,12 @@
         .numeric-input-container { display: flex; gap: 15px; align-items: center; }
         .numeric-input { flex: 1; padding: 15px; font-size: 24px; border: 3px solid var(--primary); border-radius: 15px; text-align: center; outline: none; }
         .submit-numeric { padding: 15px 30px; background: var(--green); color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+
         .countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
         .countdown-number { font-size: 180px; font-weight: bold; color: white; animation: countdownAnim 1s ease; }
         @keyframes countdownAnim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         .countdown-text { font-size: 50px; color: var(--yellow); font-weight: bold; margin-top: 20px; }
+
         .end-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; flex: 1; }
         .end-card { background: white; border-radius: 30px; padding: 40px; text-align: center; max-width: 600px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .end-title { font-size: 40px; margin-bottom: 20px; }
@@ -224,6 +237,8 @@
         .emoticons { display: flex; gap: 15px; justify-content: center; }
         .emoticon-btn { font-size: 40px; cursor: pointer; background: none; border: none; transition: transform 0.2s; }
         .emoticon-btn:hover { transform: scale(1.3); }
+
+        /* Responsive mobile */
         @media (max-width: 768px) {
             .login-card { padding: 25px; }
             .game-title { font-size: 30px; }
@@ -232,8 +247,30 @@
             .countdown-number { font-size: 100px; }
             .countdown-text { font-size: 30px; }
             .end-score { font-size: 40px; }
-            .room-menu { flex-direction: column; }
-            .room-menu-right { max-width: 100%; position: static; max-height: none; }
+
+            /* Ubah layout 2 kolom menjadi 1 kolom vertikal */
+            .room-menu {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .room-menu-left,
+            .room-menu-right {
+                width: 100%;
+                max-width: 100%;
+                position: static;
+                min-width: auto;
+            }
+            .rooms-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .room-card { padding: 15px; }
+            .room-icon { font-size: 40px; }
+            .room-menu-right {
+                max-height: 300px;
+                overflow-y: auto;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -470,7 +507,7 @@
         }
 
         function setupUlasanListener() {
-            // Hapus listener lama jika ada
+            // Hapus listener lama jika ada (hindari duplikat)
             db.ref('gea_players').off();
             db.ref('gea_players').on('value',(snapshot)=>{
                 const list=document.getElementById('ulasanList');
@@ -498,66 +535,74 @@
             });
         }
 
+        // ==== Perbaikan: startRoom langsung hide/show dan clear interval ====
         function startRoom(roomId) {
             if (roomOrder.indexOf(roomId) > roomOrder.indexOf(highestUnlocked)) {
                 alert('Room masih terkunci! Selesaikan room sebelumnya.');
                 return;
             }
-            // Clear interval yang mungkin masih berjalan
-            if (timerInterval) clearInterval(timerInterval);
-            if (countdownInterval) clearInterval(countdownInterval);
-            currentRoomId=roomId;
-            const total=roomConfig[roomId].total;
-            questions=generateQuestions(total);
-            currentQuestionIndex=0;
-            score=0; correctCount=0; wrongCount=0;
-            isGameActive=true;
-            document.getElementById('roomMenu').style.display='none';
-            document.getElementById('gameArea').style.display='flex';
-            document.getElementById('endScreen').style.display='none';
+            // Clear interval apa pun yang tersisa
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+            currentRoomId = roomId;
+            const total = roomConfig[roomId].total;
+            questions = generateQuestions(total);
+            currentQuestionIndex = 0;
+            score = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            isGameActive = true;
+
+            // Langsung pindah layar tanpa delay
+            document.getElementById('roomMenu').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'flex';
+            document.getElementById('endScreen').style.display = 'none';
             startCountdown();
         }
 
         function startCountdown() {
+            // Clear interval countdown sebelumnya (jika ada)
             if (countdownInterval) clearInterval(countdownInterval);
-            const overlay=document.getElementById('countdownOverlay');
-            const numberEl=document.getElementById('countdownNumber');
-            const textEl=document.getElementById('countdownText');
-            overlay.style.display='flex';
-            let count=5;
-            numberEl.textContent=count;
-            numberEl.style.color='white';
-            textEl.textContent='Bersiap!';
+            const overlay = document.getElementById('countdownOverlay');
+            const numberEl = document.getElementById('countdownNumber');
+            const textEl = document.getElementById('countdownText');
+            overlay.style.display = 'flex';
+            let count = 5;
+            numberEl.textContent = count;
+            numberEl.style.color = 'white';
+            textEl.textContent = 'Bersiap!';
             playCountdownBeep();
-            countdownInterval=setInterval(()=>{
+            countdownInterval = setInterval(() => {
                 count--;
-                if(count>0){
-                    numberEl.textContent=count;
-                    numberEl.style.animation='none';
-                    setTimeout(()=>{numberEl.style.animation='countdownAnim 1s ease';},10);
+                if (count > 0) {
+                    numberEl.textContent = count;
+                    numberEl.style.animation = 'none';
+                    setTimeout(() => { numberEl.style.animation = 'countdownAnim 1s ease'; }, 10);
                     playCountdownBeep();
-                } else if(count===0){
-                    numberEl.textContent='GO!';
-                    numberEl.style.color='#1DD1A1';
-                    textEl.textContent='GAME START!';
+                } else if (count === 0) {
+                    numberEl.textContent = 'GO!';
+                    numberEl.style.color = '#1DD1A1';
+                    textEl.textContent = 'GAME START!';
                     playCountdownBeep();
                 } else {
                     clearInterval(countdownInterval);
-                    overlay.style.display='none';
-                    numberEl.style.color='white';
+                    countdownInterval = null;
+                    overlay.style.display = 'none';
+                    numberEl.style.color = 'white';
                     showQuestion();
                 }
-            },1000);
+            }, 1000);
         }
 
         function showQuestion() {
-            if(currentQuestionIndex>=questions.length){
+            if (currentQuestionIndex >= questions.length) {
                 endGame();
                 return;
             }
-            const question=questions[currentQuestionIndex];
-            const focusBox=document.getElementById('focusBox');
-            let html=`
+            const question = questions[currentQuestionIndex];
+            const focusBox = document.getElementById('focusBox');
+            let html = `
                 <div class="timer-container">
                     <div class="timer-bar"><div class="timer-progress" id="timerProgress" style="width:100%"></div></div>
                     <div class="timer-text" id="timerText">30</div>
@@ -565,175 +610,181 @@
                 <div class="question-category">📚 Soal ${currentQuestionIndex+1} dari ${questions.length}</div>
                 <div class="question-text">${question.text}</div>
             `;
-            if(question.type==='multiple'){
-                html+=`<div class="options-grid">`;
-                question.options.forEach((opt,idx)=>{
-                    html+=`<button class="option-btn" data-index="${idx}" onclick="handleAnswer(${idx})">${String.fromCharCode(65+idx)}. ${opt}</button>`;
+            if (question.type === 'multiple') {
+                html += `<div class="options-grid">`;
+                question.options.forEach((opt, idx) => {
+                    html += `<button class="option-btn" data-index="${idx}" onclick="handleAnswer(${idx})">${String.fromCharCode(65+idx)}. ${opt}</button>`;
                 });
-                html+=`</div>`;
+                html += `</div>`;
             } else {
-                html+=`
+                html += `
                     <div class="numeric-input-container">
                         <input type="text" id="numericAnswer" class="numeric-input" placeholder="Ketik jawaban">
                         <button class="submit-numeric" onclick="handleNumericAnswer()">Jawab!</button>
                     </div>
                 `;
             }
-            focusBox.innerHTML=html;
+            focusBox.innerHTML = html;
             resetTimer();
         }
 
         function resetTimer() {
             if (timerInterval) clearInterval(timerInterval);
-            timeLeft=30;
-            warningPlayed=false;
+            timeLeft = 30;
+            warningPlayed = false;
             updateTimerUI();
-            timerInterval=setInterval(()=>{
+            timerInterval = setInterval(() => {
                 timeLeft--;
                 updateTimerUI();
-                if(timeLeft===9 && !warningPlayed){
-                    warningPlayed=true;
+                if (timeLeft === 9 && !warningPlayed) {
+                    warningPlayed = true;
                     playWarningBeep();
                 }
-                if(timeLeft<=9) playWarningBeep();
-                if(timeLeft<=0){
+                if (timeLeft <= 9) playWarningBeep();
+                if (timeLeft <= 0) {
                     clearInterval(timerInterval);
+                    timerInterval = null;
                     handleAnswer(-1);
                 }
-            },1000);
+            }, 1000);
         }
 
         function updateTimerUI() {
-            const timerText=document.getElementById('timerText');
-            const progress=document.getElementById('timerProgress');
-            if(timerText){
-                timerText.textContent=timeLeft;
-                if(timeLeft<=9) timerText.classList.add('warning');
+            const timerText = document.getElementById('timerText');
+            const progress = document.getElementById('timerProgress');
+            if (timerText) {
+                timerText.textContent = timeLeft;
+                if (timeLeft <= 9) timerText.classList.add('warning');
                 else timerText.classList.remove('warning');
             }
-            if(progress){
-                progress.style.width=(timeLeft/30)*100+'%';
-                if(timeLeft<=9) progress.style.background='#FF0000';
-                else progress.style.background='var(--green)';
+            if (progress) {
+                progress.style.width = (timeLeft/30)*100 + '%';
+                if (timeLeft <= 9) progress.style.background = '#FF0000';
+                else progress.style.background = 'var(--green)';
             }
         }
 
         function handleAnswer(selectedIndex) {
-            if(!isGameActive) return;
+            if (!isGameActive) return;
             clearInterval(timerInterval);
-            const question=questions[currentQuestionIndex];
-            const isCorrect=selectedIndex!==-1 && question.options[selectedIndex]===question.correct;
-            if(selectedIndex!==-1){
-                const buttons=document.querySelectorAll('.option-btn');
-                buttons.forEach((btn,idx)=>{
-                    btn.disabled=true;
-                    if(question.options[idx]===question.correct) btn.classList.add('correct');
-                    if(idx===selectedIndex && !isCorrect) btn.classList.add('wrong');
+            timerInterval = null;
+            const question = questions[currentQuestionIndex];
+            const isCorrect = selectedIndex !== -1 && question.options[selectedIndex] === question.correct;
+            if (selectedIndex !== -1) {
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach((btn, idx) => {
+                    btn.disabled = true;
+                    if (question.options[idx] === question.correct) btn.classList.add('correct');
+                    if (idx === selectedIndex && !isCorrect) btn.classList.add('wrong');
                 });
             }
-            if(isCorrect){ correctCount++; score+=100; playCorrectSound(); }
+            if (isCorrect) { correctCount++; score += 100; playCorrectSound(); }
             else { wrongCount++; playWrongSound(); }
-            setTimeout(()=>{
+            setTimeout(() => {
                 currentQuestionIndex++;
-                if(currentQuestionIndex>=questions.length) endGame();
+                if (currentQuestionIndex >= questions.length) endGame();
                 else showQuestion();
-            },1500);
+            }, 1500);
         }
 
         function handleNumericAnswer() {
-            const input=document.getElementById('numericAnswer');
-            if(!input) return;
-            const answer=input.value.trim();
-            if(!answer) return;
-            const question=questions[currentQuestionIndex];
-            const isCorrect=answer.toLowerCase()===question.correct.toString().toLowerCase();
+            const input = document.getElementById('numericAnswer');
+            if (!input) return;
+            const answer = input.value.trim();
+            if (!answer) return;
+            const question = questions[currentQuestionIndex];
+            const isCorrect = answer.toLowerCase() === question.correct.toString().toLowerCase();
             clearInterval(timerInterval);
-            if(isCorrect){ correctCount++; score+=100; playCorrectSound(); }
+            timerInterval = null;
+            if (isCorrect) { correctCount++; score += 100; playCorrectSound(); }
             else { wrongCount++; playWrongSound(); }
-            setTimeout(()=>{
+            setTimeout(() => {
                 currentQuestionIndex++;
-                if(currentQuestionIndex>=questions.length) endGame();
+                if (currentQuestionIndex >= questions.length) endGame();
                 else showQuestion();
-            },1500);
+            }, 1500);
         }
 
         function endGame() {
-            isGameActive=false;
-            clearInterval(timerInterval);
+            isGameActive = false;
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             playGameEndSound();
             announceGameEnd();
-            document.getElementById('gameArea').style.display='none';
-            document.getElementById('endScreen').style.display='flex';
-            document.getElementById('endScore').textContent=score;
-            document.getElementById('endDetails').textContent=`Benar: ${correctCount} | Salah: ${wrongCount}`;
-            const minCorrect=roomConfig[currentRoomId].minCorrect;
-            const passed=correctCount>=minCorrect;
-            const statusEl=document.getElementById('endStatus');
-            if(passed){ statusEl.textContent='LULUS! 🎉'; statusEl.className='end-status status-lulus'; }
-            else { statusEl.textContent='BELUM TUNTAS 😢'; statusEl.className='end-status status-belum'; }
-            const currentIndex=roomOrder.indexOf(currentRoomId);
-            document.getElementById('btnNextRoom').disabled=!passed || currentIndex>=roomOrder.length-1;
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'flex';
+            document.getElementById('endScore').textContent = score;
+            document.getElementById('endDetails').textContent = `Benar: ${correctCount} | Salah: ${wrongCount}`;
+            const minCorrect = roomConfig[currentRoomId].minCorrect;
+            const passed = correctCount >= minCorrect;
+            const statusEl = document.getElementById('endStatus');
+            if (passed) { statusEl.textContent = 'LULUS! 🎉'; statusEl.className = 'end-status status-lulus'; }
+            else { statusEl.textContent = 'BELUM TUNTAS 😢'; statusEl.className = 'end-status status-belum'; }
+            const currentIndex = roomOrder.indexOf(currentRoomId);
+            document.getElementById('btnNextRoom').disabled = !passed || currentIndex >= roomOrder.length - 1;
             saveProgress(passed);
         }
 
         async function saveProgress(passed) {
-            try{
-                const data=await loadPlayerProgress(currentPlayerName);
-                const scores=data?.scores_per_room||{};
-                scores[currentRoomId]={score,correct:correctCount,total:questions.length,passed};
-                let newHighest=highestUnlocked;
-                const currentIndex=roomOrder.indexOf(currentRoomId);
-                if(passed && currentIndex<roomOrder.length-1){
-                    newHighest=roomOrder[currentIndex+1];
+            try {
+                const data = await loadPlayerProgress(currentPlayerName);
+                const scores = data?.scores_per_room || {};
+                scores[currentRoomId] = { score, correct: correctCount, total: questions.length, passed };
+                let newHighest = highestUnlocked;
+                const currentIndex = roomOrder.indexOf(currentRoomId);
+                if (passed && currentIndex < roomOrder.length - 1) {
+                    newHighest = roomOrder[currentIndex + 1];
                 }
-                await savePlayerProgress(currentPlayerName,{highest_room_unlocked:newHighest,scores_per_room:scores});
-                highestUnlocked=newHighest;
+                await savePlayerProgress(currentPlayerName, { highest_room_unlocked: newHighest, scores_per_room: scores });
+                highestUnlocked = newHighest;
                 renderRooms();
-            }catch(e){ console.error(e); }
+            } catch (e) { console.error('Error saving progress:', e); }
         }
 
         function setupFeedback() {
-            document.querySelectorAll('.emoticon-btn').forEach(btn=>{
-                btn.addEventListener('click',async()=>{
-                    const value=btn.dataset.value;
-                    try{
-                        await savePlayerProgress(currentPlayerName,{feedback_emoticon:value});
+            document.querySelectorAll('.emoticon-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const value = btn.dataset.value;
+                    try {
+                        await savePlayerProgress(currentPlayerName, { feedback_emoticon: value });
                         alert('Terima kasih atas feedbackmu! 😊');
-                    }catch(e){ console.error(e); }
+                    } catch (e) { console.error('Error saving feedback:', e); }
                 });
             });
         }
 
         // Event listeners
-        document.addEventListener('DOMContentLoaded',()=>{
-            document.getElementById('btnLogin').addEventListener('click',async()=>{
-                const name=document.getElementById('playerNameInput').value.trim();
-                if(!name){ alert('Masukkan nama kamu dulu ya! 😊'); return; }
-                currentPlayerName=name;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btnLogin').addEventListener('click', async () => {
+                const name = document.getElementById('playerNameInput').value.trim();
+                if (!name) { alert('Masukkan nama kamu dulu ya! 😊'); return; }
+                currentPlayerName = name;
                 initAudio();
-                try{
-                    const progress=await loadPlayerProgress(name);
-                    highestUnlocked=progress?.highest_room_unlocked||1;
-                }catch(e){ highestUnlocked=1; }
-                document.getElementById('headerAvatar').textContent=name.charAt(0).toUpperCase();
-                document.getElementById('headerPlayerName').textContent=name;
+                try {
+                    const progress = await loadPlayerProgress(name);
+                    highestUnlocked = progress?.highest_room_unlocked || 1;
+                } catch (e) { highestUnlocked = 1; }
+                document.getElementById('headerAvatar').textContent = name.charAt(0).toUpperCase();
+                document.getElementById('headerPlayerName').textContent = name;
                 showMainContainer();
                 renderRooms();
                 setupUlasanListener();
             });
-            document.getElementById('playerNameInput').addEventListener('keypress',e=>{ if(e.key==='Enter') document.getElementById('btnLogin').click(); });
-            document.getElementById('btnRetry').addEventListener('click',()=>startRoom(currentRoomId));
-            document.getElementById('btnNextRoom').addEventListener('click',()=>{
-                const currentIndex=roomOrder.indexOf(currentRoomId);
-                if(currentIndex<roomOrder.length-1) startRoom(roomOrder[currentIndex+1]);
+            document.getElementById('playerNameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') document.getElementById('btnLogin').click();
             });
-            document.getElementById('btnBackToMenu').addEventListener('click',showRoomMenu);
+            document.getElementById('btnRetry').addEventListener('click', () => startRoom(currentRoomId));
+            document.getElementById('btnNextRoom').addEventListener('click', () => {
+                const currentIndex = roomOrder.indexOf(currentRoomId);
+                if (currentIndex < roomOrder.length - 1) startRoom(roomOrder[currentIndex + 1]);
+            });
+            document.getElementById('btnBackToMenu').addEventListener('click', showRoomMenu);
             setupFeedback();
             showLogin();
         });
 
-        window.handleAnswer=handleAnswer;
-        window.handleNumericAnswer=handleNumericAnswer;
+        // Expose functions for inline onclick
+        window.handleAnswer = handleAnswer;
+        window.handleNumericAnswer = handleNumericAnswer;
     </script>
 </body>
 </html>
