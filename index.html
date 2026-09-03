@@ -208,12 +208,8 @@
             z-index: 5;
             backdrop-filter: blur(5px);
         }
-        .footer-left {
-            text-align: left;
-        }
-        .footer-right {
-            text-align: right;
-        }
+        .footer-left { text-align: left; }
+        .footer-right { text-align: right; }
 
         /* Main container */
         #mainContainer {
@@ -235,9 +231,7 @@
             z-index: 5;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-        .header-logo {
-            height: 45px;
-        }
+        .header-logo { height: 45px; }
         .header-right {
             display: flex;
             align-items: center;
@@ -264,33 +258,36 @@
             font-size: 20px;
         }
 
-        /* Room menu */
+        /* Room menu - 2 column layout */
         .room-menu {
             flex: 1;
-            padding: 30px;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .room-menu-left {
+            flex: 2;
+            display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 30px;
+            gap: 20px;
         }
         .room-menu-title {
-            font-size: 32px;
+            font-size: 28px;
             color: var(--primary);
             text-align: center;
         }
         .rooms-grid {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
         }
         .room-card {
             background: white;
             border: 3px solid #e0e0e0;
             border-radius: 20px;
-            padding: 25px;
-            width: 220px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
@@ -308,18 +305,15 @@
         .room-card.locked .room-icon {
             filter: grayscale(100%);
         }
-        .room-icon {
-            font-size: 50px;
-            margin-bottom: 10px;
-        }
+        .room-icon { font-size: 48px; margin-bottom: 10px; }
         .room-name {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
             margin-bottom: 5px;
         }
         .room-info {
-            font-size: 14px;
+            font-size: 13px;
             color: #666;
             margin-bottom: 10px;
         }
@@ -327,6 +321,65 @@
             position: absolute;
             top: 10px;
             right: 10px;
+            font-size: 24px;
+        }
+
+        /* Sidebar ulasan */
+        .room-menu-right {
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .ulasan-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .ulasan-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .ulasan-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid var(--green);
+        }
+        .ulasan-avatar {
+            width: 35px;
+            height: 35px;
+            background: var(--yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        .ulasan-detail {
+            flex: 1;
+            font-size: 14px;
+        }
+        .ulasan-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .ulasan-emoji {
             font-size: 24px;
         }
 
@@ -536,12 +589,8 @@
             font-weight: bold;
             margin: 20px 0;
         }
-        .status-lulus {
-            color: var(--green);
-        }
-        .status-belum {
-            color: var(--accent);
-        }
+        .status-lulus { color: var(--green); }
+        .status-belum { color: var(--accent); }
         .btn-group {
             display: flex;
             gap: 15px;
@@ -602,6 +651,14 @@
             .countdown-number { font-size: 100px; }
             .countdown-text { font-size: 30px; }
             .end-score { font-size: 40px; }
+            .room-menu {
+                flex-direction: column;
+            }
+            .room-menu-right {
+                max-width: 100%;
+                position: static;
+                max-height: none;
+            }
         }
     </style>
 </head>
@@ -645,10 +702,16 @@
             </div>
         </div>
 
-        <!-- Room Menu -->
+        <!-- Room Menu - 2 column layout -->
         <div class="room-menu" id="roomMenu">
-            <div class="room-menu-title">🏆 Pilih Room Latihan</div>
-            <div class="rooms-grid" id="roomsGrid"></div>
+            <div class="room-menu-left">
+                <div class="room-menu-title">🏆 Pilih Room Latihan</div>
+                <div class="rooms-grid" id="roomsGrid"></div>
+            </div>
+            <div class="room-menu-right">
+                <div class="ulasan-title">📋 ULASAN</div>
+                <div class="ulasan-list" id="ulasanList"></div>
+            </div>
         </div>
 
         <!-- Game Area -->
@@ -717,11 +780,15 @@
         let warningPlayed = false;
         let audioContext = null;
         let isGameActive = false;
+        let roomOrder = [1, 2, 3, 4, 'A', 'B', 'C'];
         let roomConfig = {
             1: { total: 15, minCorrect: 12 },
             2: { total: 20, minCorrect: 17 },
             3: { total: 30, minCorrect: 27 },
-            4: { total: 40, minCorrect: 37 }
+            4: { total: 40, minCorrect: 37 },
+            'A': { total: 25, minCorrect: 22, special: true },
+            'B': { total: 30, minCorrect: 26, special: true },
+            'C': { total: 35, minCorrect: 30, special: true }
         };
 
         // ========== AUDIO FUNCTIONS ==========
@@ -749,27 +816,18 @@
             playTone(600, 0.3, 'sine', 0.4);
             setTimeout(() => playTone(800, 0.3, 'sine', 0.4), 100);
         }
-
         function playWrongSound() {
             playTone(200, 0.3, 'sawtooth', 0.3);
             setTimeout(() => playTone(150, 0.4, 'sawtooth', 0.3), 150);
         }
-
-        function playCountdownBeep() {
-            playTone(440, 0.2, 'sine', 0.5);
-        }
-
-        function playWarningBeep() {
-            playTone(880, 0.15, 'square', 0.3);
-        }
-
+        function playCountdownBeep() { playTone(440, 0.2, 'sine', 0.5); }
+        function playWarningBeep() { playTone(880, 0.15, 'square', 0.3); }
         function playGameEndSound() {
             playTone(523, 0.3, 'sine', 0.5);
             setTimeout(() => playTone(659, 0.3, 'sine', 0.5), 200);
             setTimeout(() => playTone(784, 0.3, 'sine', 0.5), 400);
             setTimeout(() => playTone(1047, 0.5, 'sine', 0.5), 600);
         }
-
         function announceGameEnd() {
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance('Game sudah selesai!');
@@ -778,14 +836,9 @@
             }
         }
 
-        // ========== UTILITY FUNCTIONS ==========
-        function sanitizeName(name) {
-            return name.trim().replace(/\s+/g, '_').toLowerCase();
-        }
-
-        function getPlayerRef(name) {
-            return db.ref('gea_players/' + sanitizeName(name));
-        }
+        // ========== UTILITY ==========
+        function sanitizeName(name) { return name.trim().replace(/\s+/g, '_').toLowerCase(); }
+        function getPlayerRef(name) { return db.ref('gea_players/' + sanitizeName(name)); }
 
         async function loadPlayerProgress(name) {
             const ref = getPlayerRef(name);
@@ -805,18 +858,10 @@
                 const subject = subjects[Math.floor(Math.random() * subjects.length)];
                 let q;
                 switch (subject) {
-                    case 'numerik':
-                        q = generateMathQuestion();
-                        break;
-                    case 'logika':
-                        q = generateLogicQuestion();
-                        break;
-                    case 'spasial':
-                        q = generateSpatialQuestion();
-                        break;
-                    case 'memori':
-                        q = generateMemoryQuestion();
-                        break;
+                    case 'numerik': q = generateMathQuestion(); break;
+                    case 'logika': q = generateLogicQuestion(); break;
+                    case 'spasial': q = generateSpatialQuestion(); break;
+                    case 'memori': q = generateMemoryQuestion(); break;
                 }
                 questions.push(q);
             }
@@ -829,51 +874,23 @@
             const op = ['+', '-', '×', ':'][Math.floor(Math.random() * 4)];
             let question, answer;
             switch (op) {
-                case '+':
-                    question = `${a} + ${b} = ?`;
-                    answer = a + b;
-                    break;
-                case '-':
-                    question = `${Math.max(a,b)} - ${Math.min(a,b)} = ?`;
-                    answer = Math.abs(a - b);
-                    break;
-                case '×':
-                    question = `${a} × ${b} = ?`;
-                    answer = a * b;
-                    break;
-                case ':':
-                    const dividend = a * b;
-                    question = `${dividend} : ${a} = ?`;
-                    answer = b;
-                    break;
+                case '+': question = `${a} + ${b} = ?`; answer = a + b; break;
+                case '-': question = `${Math.max(a,b)} - ${Math.min(a,b)} = ?`; answer = Math.abs(a - b); break;
+                case '×': question = `${a} × ${b} = ?`; answer = a * b; break;
+                case ':': const dividend = a * b; question = `${dividend} : ${a} = ?`; answer = b; break;
             }
             const options = new Set([answer]);
-            while (options.size < 4) {
-                options.add(answer + Math.floor(Math.random() * 10) - 5);
-            }
-            return {
-                text: question,
-                options: Array.from(options).sort(() => Math.random() - 0.5),
-                correct: answer,
-                type: 'multiple'
-            };
+            while (options.size < 4) options.add(answer + Math.floor(Math.random() * 10) - 5);
+            return { text: question, options: Array.from(options).sort(() => Math.random() - 0.5), correct: answer, type: 'multiple' };
         }
-
         function generateLogicQuestion() {
             const a = Math.floor(Math.random() * 20) + 1;
             const b = Math.floor(Math.random() * 20) + 1;
             const larger = Math.max(a, b);
             const smaller = Math.min(a, b);
-            const question = `Mana yang lebih besar?`;
             const options = [larger, smaller, larger + Math.floor(Math.random()*5)+1, smaller - Math.floor(Math.random()*5)-1];
-            return {
-                text: question,
-                options: options.map(String),
-                correct: String(larger),
-                type: 'multiple'
-            };
+            return { text: 'Mana yang lebih besar?', options: options.map(String), correct: String(larger), type: 'multiple' };
         }
-
         function generateSpatialQuestion() {
             const shapes = [
                 { name: 'segitiga', sides: 3 },
@@ -886,28 +903,14 @@
             const correct = chosen.sides;
             const options = new Set([correct]);
             while (options.size < 4) options.add(correct + Math.floor(Math.random()*3) - 1);
-            return {
-                text: `Berapa sisi ${chosen.name}?`,
-                options: Array.from(options).map(String).sort(() => Math.random()-0.5),
-                correct: String(correct),
-                type: 'multiple'
-            };
+            return { text: `Berapa sisi ${chosen.name}?`, options: Array.from(options).map(String).sort(() => Math.random()-0.5), correct: String(correct), type: 'multiple' };
         }
-
         function generateMemoryQuestion() {
             const items = ['apel', 'bola', 'kucing', 'buku', 'mobil', 'roti'];
             const chosen = items[Math.floor(Math.random()*items.length)];
-            const question = `Ingat! Sebutkan kembali: ${chosen}. Mana yang disebut?`;
             const options = new Set([chosen]);
-            while (options.size < 4) {
-                options.add(items[Math.floor(Math.random()*items.length)]);
-            }
-            return {
-                text: question,
-                options: Array.from(options).sort(() => Math.random()-0.5),
-                correct: chosen,
-                type: 'multiple'
-            };
+            while (options.size < 4) options.add(items[Math.floor(Math.random()*items.length)]);
+            return { text: `Ingat! Sebutkan kembali: ${chosen}. Mana yang disebut?`, options: Array.from(options).sort(() => Math.random()-0.5), correct: chosen, type: 'multiple' };
         }
 
         // ========== UI FUNCTIONS ==========
@@ -915,7 +918,6 @@
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('mainContainer').style.display = 'none';
         }
-
         function showMainContainer() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'flex';
@@ -923,7 +925,6 @@
             document.getElementById('gameArea').style.display = 'none';
             document.getElementById('endScreen').style.display = 'none';
         }
-
         function showRoomMenu() {
             document.getElementById('roomMenu').style.display = 'flex';
             document.getElementById('gameArea').style.display = 'none';
@@ -934,27 +935,68 @@
         function renderRooms() {
             const grid = document.getElementById('roomsGrid');
             grid.innerHTML = '';
-            const unlocked = highestUnlocked;
-            for (let roomId = 1; roomId <= 4; roomId++) {
+            roomOrder.forEach((roomId, index) => {
                 const config = roomConfig[roomId];
-                const isUnlocked = roomId <= unlocked;
+                const isUnlocked = index === 0 || index < roomOrder.indexOf(highestUnlocked) + 1;
+                const unlocked = index < roomOrder.indexOf(highestUnlocked) + 1;
                 const card = document.createElement('div');
-                card.className = 'room-card' + (isUnlocked ? '' : ' locked');
+                card.className = 'room-card' + (unlocked ? '' : ' locked');
+                const icon = config.special ? '🏆' : ['🦸','👥','🎪','🏟️'][index % 4];
                 card.innerHTML = `
-                    <div class="room-lock-icon">${isUnlocked ? '🔓' : '🔒'}</div>
-                    <div class="room-icon">${['🦸','👥','🎪','🏟️'][roomId-1]}</div>
+                    <div class="room-lock-icon">${unlocked ? '🔓' : '🔒'}</div>
+                    <div class="room-icon">${icon}</div>
                     <div class="room-name">Room ${roomId}</div>
                     <div class="room-info">${config.total} Soal<br>Minimal benar: ${config.minCorrect}</div>
                 `;
-                if (isUnlocked) {
+                if (unlocked) {
                     card.addEventListener('click', () => startRoom(roomId));
                 }
                 grid.appendChild(card);
-            }
+            });
+        }
+
+        function setupUlasanListener() {
+            db.ref('gea_players').on('value', (snapshot) => {
+                const ulasanList = document.getElementById('ulasanList');
+                ulasanList.innerHTML = '';
+                const players = snapshot.val() || {};
+                const entries = [];
+                Object.keys(players).forEach(name => {
+                    const data = players[name];
+                    if (data.feedback_emoticon) {
+                        const emojiMap = {
+                            'sangat_puas': '😄',
+                            'puas': '🙂',
+                            'netral': '😐',
+                            'kurang_puas': '☹️'
+                        };
+                        entries.push({
+                            name: data.name || name,
+                            emoji: emojiMap[data.feedback_emoticon] || '😊'
+                        });
+                    }
+                });
+                // Tampilkan 20 terbaru (asumsi data masuk terakhir di akhir)
+                entries.slice(-20).reverse().forEach(entry => {
+                    const item = document.createElement('div');
+                    item.className = 'ulasan-item';
+                    item.innerHTML = `
+                        <div class="ulasan-avatar">${entry.name.charAt(0).toUpperCase()}</div>
+                        <div class="ulasan-detail">
+                            <div class="ulasan-name">${entry.name}</div>
+                        </div>
+                        <div class="ulasan-emoji">${entry.emoji}</div>
+                    `;
+                    ulasanList.appendChild(item);
+                });
+                if (entries.length === 0) {
+                    ulasanList.innerHTML = '<div style="text-align:center;color:#999;">Belum ada ulasan.</div>';
+                }
+            });
         }
 
         function startRoom(roomId) {
-            if (roomId > highestUnlocked) {
+            if (roomOrder.indexOf(roomId) > roomOrder.indexOf(highestUnlocked)) {
                 alert('Room masih terkunci! Selesaikan room sebelumnya.');
                 return;
             }
@@ -1062,19 +1104,13 @@
             const progress = document.getElementById('timerProgress');
             if (timerText) {
                 timerText.textContent = timeLeft;
-                if (timeLeft <= 9) {
-                    timerText.classList.add('warning');
-                } else {
-                    timerText.classList.remove('warning');
-                }
+                if (timeLeft <= 9) timerText.classList.add('warning');
+                else timerText.classList.remove('warning');
             }
             if (progress) {
                 progress.style.width = (timeLeft / 30) * 100 + '%';
-                if (timeLeft <= 9) {
-                    progress.style.background = '#FF0000';
-                } else {
-                    progress.style.background = 'var(--green)';
-                }
+                if (timeLeft <= 9) progress.style.background = '#FF0000';
+                else progress.style.background = 'var(--green)';
             }
         }
 
@@ -1101,11 +1137,8 @@
             }
             setTimeout(() => {
                 currentQuestionIndex++;
-                if (currentQuestionIndex >= questions.length) {
-                    endGame();
-                } else {
-                    showQuestion();
-                }
+                if (currentQuestionIndex >= questions.length) endGame();
+                else showQuestion();
             }, 1500);
         }
 
@@ -1127,11 +1160,8 @@
             }
             setTimeout(() => {
                 currentQuestionIndex++;
-                if (currentQuestionIndex >= questions.length) {
-                    endGame();
-                } else {
-                    showQuestion();
-                }
+                if (currentQuestionIndex >= questions.length) endGame();
+                else showQuestion();
             }, 1500);
         }
 
@@ -1154,7 +1184,7 @@
                 statusEl.textContent = 'BELUM TUNTAS 😢';
                 statusEl.className = 'end-status status-belum';
             }
-            document.getElementById('btnNextRoom').disabled = !passed || currentRoomId >= 4;
+            document.getElementById('btnNextRoom').disabled = !passed || roomOrder.indexOf(currentRoomId) >= roomOrder.length - 1;
             saveProgress(passed);
         }
 
@@ -1169,8 +1199,10 @@
                     passed: passed
                 };
                 let newHighest = highestUnlocked;
-                if (passed && currentRoomId + 1 <= 4) {
-                    newHighest = Math.max(highestUnlocked, currentRoomId + 1);
+                const currentIndex = roomOrder.indexOf(currentRoomId);
+                if (passed && currentIndex < roomOrder.length - 1) {
+                    const nextRoom = roomOrder[currentIndex + 1];
+                    newHighest = nextRoom;
                 }
                 await savePlayerProgress(currentPlayerName, {
                     highest_room_unlocked: newHighest,
@@ -1191,6 +1223,8 @@
                     try {
                         await savePlayerProgress(currentPlayerName, { feedback_emoticon: value });
                         alert('Terima kasih atas feedbackmu! 😊');
+                        // Update ulasan panel if visible
+                        // (Firebase listener will handle automatically)
                     } catch (error) {
                         console.error('Error saving feedback:', error);
                     }
@@ -1198,7 +1232,7 @@
             });
         }
 
-        // Event listeners
+        // ========== EVENT LISTENERS ==========
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btnLogin').addEventListener('click', async () => {
                 const name = document.getElementById('playerNameInput').value.trim();
@@ -1218,28 +1252,25 @@
                 document.getElementById('headerPlayerName').textContent = name;
                 showMainContainer();
                 renderRooms();
+                setupUlasanListener();
             });
 
             document.getElementById('playerNameInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('btnLogin').click();
-                }
+                if (e.key === 'Enter') document.getElementById('btnLogin').click();
             });
 
-            document.getElementById('btnRetry').addEventListener('click', () => {
-                startRoom(currentRoomId);
-            });
+            document.getElementById('btnRetry').addEventListener('click', () => startRoom(currentRoomId));
 
             document.getElementById('btnNextRoom').addEventListener('click', () => {
-                if (currentRoomId < 4) {
-                    startRoom(currentRoomId + 1);
+                const currentIndex = roomOrder.indexOf(currentRoomId);
+                if (currentIndex < roomOrder.length - 1) {
+                    startRoom(roomOrder[currentIndex + 1]);
                 }
             });
 
             document.getElementById('btnBackToMenu').addEventListener('click', showRoomMenu);
 
             setupFeedback();
-
             showLogin();
         });
 
