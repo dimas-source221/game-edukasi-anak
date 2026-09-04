@@ -116,11 +116,20 @@
             font-size: 14px;
             z-index: 5;
             backdrop-filter: blur(5px);
+            pointer-events: none; /* Mencegah footer menghalangi klik elemen di belakangnya */
         }
         .footer-left { text-align: left; }
         .footer-right { text-align: right; }
 
-        #mainContainer { display: none; width: 100%; height: 100vh; flex-direction: column; background: #f0f0f0; }
+        #mainContainer { 
+            display: none; 
+            width: 100%; 
+            height: 100vh; 
+            flex-direction: column; 
+            background: #f0f0f0; 
+            position: relative;
+            z-index: 10;
+        }
         .header {
             background: var(--gradient);
             padding: 15px 20px;
@@ -139,7 +148,7 @@
         .player-avatar { width: 40px; height: 40px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 20px; }
 
         /* Room menu - 2 column desktop */
-        .room-menu { flex: 1; padding: 20px; overflow-y: auto; display: flex; gap: 20px; align-items: flex-start; }
+        .room-menu { flex: 1; padding: 20px 20px 60px 20px; overflow-y: auto; display: flex; gap: 20px; align-items: flex-start; }
         .room-menu-left { flex: 2; display: flex; flex-direction: column; gap: 20px; }
         .room-menu-title { font-size: 28px; color: var(--primary); text-align: center; }
         .rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
@@ -184,11 +193,11 @@
         .ulasan-emoji { font-size: 24px; }
 
         /* Game area */
-        .game-area { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        .game-area { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px 20px 60px 20px; overflow-y: auto; }
         .focus-box { background: white; border-radius: 30px; padding: 40px; width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideIn 0.5s ease; position: relative; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .timer-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .timer-bar { flex: 1; height: 10px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+        .timer-bar { flex: 1; height: 100px; height: 10px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
         .timer-progress { height: 100%; background: var(--green); transition: width 1s linear; }
         .timer-text { font-size: 28px; font-weight: bold; color: var(--accent); min-width: 50px; text-align: center; }
         .timer-text.warning { color: #FF0000; animation: blink 0.5s infinite; }
@@ -220,19 +229,40 @@
         @keyframes countdownAnim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         .countdown-text { font-size: 50px; color: var(--yellow); font-weight: bold; margin-top: 20px; }
 
-        .end-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; flex: 1; }
-        .end-card { background: white; border-radius: 30px; padding: 40px; text-align: center; max-width: 600px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        /* End screen diperbaiki agar bisa diklik dan tidak tertutup footer */
+        .end-screen { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 30px 20px 80px 20px; 
+            flex: 1; 
+            overflow-y: auto;
+            position: relative;
+            z-index: 20;
+        }
+        .end-card { 
+            background: white; 
+            border-radius: 30px; 
+            padding: 40px; 
+            text-align: center; 
+            max-width: 600px; 
+            width: 90%; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
+            position: relative;
+            z-index: 30;
+        }
         .end-title { font-size: 40px; margin-bottom: 20px; }
         .end-score { font-size: 60px; font-weight: bold; color: var(--primary); margin: 20px 0; }
         .end-details { font-size: 20px; margin: 15px 0; }
         .end-status { font-size: 28px; font-weight: bold; margin: 20px 0; }
         .status-lulus { color: var(--green); }
         .status-belum { color: var(--accent); }
-        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 25px; }
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 25px; position: relative; z-index: 40; }
         .btn-secondary { padding: 12px 24px; background: #e0e0e0; color: #333; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
         .btn-secondary:hover:not(:disabled) { background: #d0d0d0; transform: translateY(-2px); }
         .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .feedback-container { margin-top: 20px; }
+        .feedback-container { margin-top: 20px; position: relative; z-index: 40; }
         .feedback-title { font-size: 18px; margin-bottom: 10px; }
         .emoticons { display: flex; gap: 15px; justify-content: center; }
         .emoticon-btn { font-size: 40px; cursor: pointer; background: none; border: none; transition: transform 0.2s; }
@@ -393,7 +423,7 @@
             'C': { total: 35, minCorrect: 30, special: true }
         };
 
-        // Audio
+        // Audio & English Speech Synthesis
         function initAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
         function playTone(freq, duration, type='sine', volume=0.3) {
             if (!audioContext) return;
@@ -413,7 +443,17 @@
         function playCountdownBeep() { playTone(440,0.2,'sine',0.5); }
         function playWarningBeep() { playTone(880,0.15,'square',0.3); }
         function playGameEndSound() { playTone(523,0.3,'sine',0.5); setTimeout(()=>playTone(659,0.3,'sine',0.5),200); setTimeout(()=>playTone(784,0.3,'sine',0.5),400); setTimeout(()=>playTone(1047,0.5,'sine',0.5),600); }
-        function announceGameEnd() { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance('Game sudah selesai!'); u.lang='id-ID'; speechSynthesis.speak(u); } }
+        
+        // Fungsi Suara Bahasa Inggris untuk Start & End
+        function speakEnglish(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
 
         // Utility
         function sanitizeName(name) { return name.trim().replace(/\s+/g,'_').toLowerCase(); }
@@ -448,13 +488,13 @@
                 case ':': const div=a*b; text=`${div} : ${a} = ?`; ans=b; break;
             }
             const opts=new Set([ans]); 
-            while(opts.size<4) opts.add(ans+Math.floor(Math.random()*15)-7); // Rentang diperluas agar aman dari duplicate/infinite loop
+            while(opts.size<4) opts.add(ans+Math.floor(Math.random()*15)-7);
             return { text, options:Array.from(opts).sort(()=>Math.random()-0.5), correct:ans, type:'multiple' };
         }
         
         function generateLogic() {
             let a=Math.floor(Math.random()*20)+1, b=Math.floor(Math.random()*20)+1;
-            while(a === b) b=Math.floor(Math.random()*20)+1; // Pastikan a dan b tidak identik
+            while(a === b) b=Math.floor(Math.random()*20)+1;
             
             const larger=Math.max(a,b), smaller=Math.min(a,b);
             const opts=new Set([larger, smaller]);
@@ -470,7 +510,6 @@
             const correct=chosen.sides;
             const opts=new Set([correct]); 
             
-            // Rentang diperluas untuk menghindari infinite loop
             while(opts.size<4) opts.add(Math.floor(Math.random() * 8) + 3);
             return { text:`Berapa sisi ${chosen.name}?`, options:Array.from(opts).map(String).sort(()=>Math.random()-0.5), correct:String(correct), type:'multiple' };
         }
@@ -592,6 +631,7 @@
                     numberEl.style.color = '#1DD1A1';
                     textEl.textContent = 'GAME START!';
                     playCountdownBeep();
+                    speakEnglish("Game Start!"); // Suara Bahasa Inggris saat Game Start
                 } else {
                     clearInterval(countdownInterval);
                     countdownInterval = null;
@@ -651,7 +691,7 @@
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     timerInterval = null;
-                    handleAnswer(-1); // Timeout
+                    handleAnswer(-1);
                 }
             }, 1000);
         }
@@ -678,7 +718,6 @@
             const question = questions[currentQuestionIndex];
             const isCorrect = selectedIndex !== -1 && question.options[selectedIndex] === question.correct;
             
-            // Nonaktifkan semua opsi saat diklik atau saat waktu habis agar mencegah klik berulang
             const buttons = document.querySelectorAll('.option-btn');
             buttons.forEach((btn, idx) => {
                 btn.disabled = true;
@@ -718,7 +757,8 @@
             isGameActive = false;
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             playGameEndSound();
-            announceGameEnd();
+            speakEnglish("Game Over!"); // Suara Bahasa Inggris saat Game Over
+            
             document.getElementById('gameArea').style.display = 'none';
             document.getElementById('endScreen').style.display = 'flex';
             document.getElementById('endScore').textContent = score;
