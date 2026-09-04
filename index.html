@@ -248,7 +248,6 @@
             .countdown-text { font-size: 30px; }
             .end-score { font-size: 40px; }
 
-            /* Ubah layout 2 kolom menjadi 1 kolom vertikal */
             .room-menu {
                 flex-direction: column;
                 gap: 15px;
@@ -437,6 +436,7 @@
             }
             return qs;
         }
+        
         function generateMath() {
             const a=Math.floor(Math.random()*20)+1, b=Math.floor(Math.random()*10)+1;
             const op=['+','-','×',':'][Math.floor(Math.random()*4)];
@@ -447,22 +447,34 @@
                 case '×': text=`${a} × ${b} = ?`; ans=a*b; break;
                 case ':': const div=a*b; text=`${div} : ${a} = ?`; ans=b; break;
             }
-            const opts=new Set([ans]); while(opts.size<4) opts.add(ans+Math.floor(Math.random()*10)-5);
+            const opts=new Set([ans]); 
+            while(opts.size<4) opts.add(ans+Math.floor(Math.random()*15)-7); // Rentang diperluas agar aman dari duplicate/infinite loop
             return { text, options:Array.from(opts).sort(()=>Math.random()-0.5), correct:ans, type:'multiple' };
         }
+        
         function generateLogic() {
-            const a=Math.floor(Math.random()*20)+1, b=Math.floor(Math.random()*20)+1;
+            let a=Math.floor(Math.random()*20)+1, b=Math.floor(Math.random()*20)+1;
+            while(a === b) b=Math.floor(Math.random()*20)+1; // Pastikan a dan b tidak identik
+            
             const larger=Math.max(a,b), smaller=Math.min(a,b);
-            const opts=[larger,smaller,larger+Math.floor(Math.random()*5)+1,smaller-Math.floor(Math.random()*5)-1];
-            return { text:'Mana yang lebih besar?', options:opts.map(String), correct:String(larger), type:'multiple' };
+            const opts=new Set([larger, smaller]);
+            
+            while(opts.size<4) opts.add(larger+Math.floor(Math.random()*10)+1);
+            
+            return { text:`Antara ${a} dan ${b}, mana yang lebih besar?`, options:Array.from(opts).map(String).sort(()=>Math.random()-0.5), correct:String(larger), type:'multiple' };
         }
+        
         function generateSpatial() {
             const shapes=[{name:'segitiga',sides:3},{name:'persegi',sides:4},{name:'segi lima',sides:5},{name:'segi enam',sides:6},{name:'kubus',sides:6}];
             const chosen=shapes[Math.floor(Math.random()*shapes.length)];
             const correct=chosen.sides;
-            const opts=new Set([correct]); while(opts.size<4) opts.add(correct+Math.floor(Math.random()*3)-1);
+            const opts=new Set([correct]); 
+            
+            // Rentang diperluas untuk menghindari infinite loop
+            while(opts.size<4) opts.add(Math.floor(Math.random() * 8) + 3);
             return { text:`Berapa sisi ${chosen.name}?`, options:Array.from(opts).map(String).sort(()=>Math.random()-0.5), correct:String(correct), type:'multiple' };
         }
+        
         function generateMemory() {
             const items=['apel','bola','kucing','buku','mobil','roti'];
             const chosen=items[Math.floor(Math.random()*items.length)];
@@ -507,7 +519,6 @@
         }
 
         function setupUlasanListener() {
-            // Hapus listener lama jika ada (hindari duplikat)
             db.ref('gea_players').off();
             db.ref('gea_players').on('value',(snapshot)=>{
                 const list=document.getElementById('ulasanList');
@@ -535,13 +546,11 @@
             });
         }
 
-        // ==== Perbaikan: startRoom langsung hide/show dan clear interval ====
         function startRoom(roomId) {
             if (roomOrder.indexOf(roomId) > roomOrder.indexOf(highestUnlocked)) {
                 alert('Room masih terkunci! Selesaikan room sebelumnya.');
                 return;
             }
-            // Clear interval apa pun yang tersisa
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
@@ -554,7 +563,6 @@
             wrongCount = 0;
             isGameActive = true;
 
-            // Langsung pindah layar tanpa delay
             document.getElementById('roomMenu').style.display = 'none';
             document.getElementById('gameArea').style.display = 'flex';
             document.getElementById('endScreen').style.display = 'none';
@@ -562,7 +570,6 @@
         }
 
         function startCountdown() {
-            // Clear interval countdown sebelumnya (jika ada)
             if (countdownInterval) clearInterval(countdownInterval);
             const overlay = document.getElementById('countdownOverlay');
             const numberEl = document.getElementById('countdownNumber');
@@ -644,7 +651,7 @@
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     timerInterval = null;
-                    handleAnswer(-1);
+                    handleAnswer(-1); // Timeout
                 }
             }, 1000);
         }
@@ -670,16 +677,18 @@
             timerInterval = null;
             const question = questions[currentQuestionIndex];
             const isCorrect = selectedIndex !== -1 && question.options[selectedIndex] === question.correct;
-            if (selectedIndex !== -1) {
-                const buttons = document.querySelectorAll('.option-btn');
-                buttons.forEach((btn, idx) => {
-                    btn.disabled = true;
-                    if (question.options[idx] === question.correct) btn.classList.add('correct');
-                    if (idx === selectedIndex && !isCorrect) btn.classList.add('wrong');
-                });
-            }
+            
+            // Nonaktifkan semua opsi saat diklik atau saat waktu habis agar mencegah klik berulang
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (question.type === 'multiple' && question.options[idx] === question.correct) btn.classList.add('correct');
+                if (idx === selectedIndex && !isCorrect) btn.classList.add('wrong');
+            });
+            
             if (isCorrect) { correctCount++; score += 100; playCorrectSound(); }
             else { wrongCount++; playWrongSound(); }
+            
             setTimeout(() => {
                 currentQuestionIndex++;
                 if (currentQuestionIndex >= questions.length) endGame();
