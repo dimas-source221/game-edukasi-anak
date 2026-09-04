@@ -32,7 +32,7 @@
             position: relative;
             overflow: hidden;
         }
-        .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+        .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; pointer-events: none; }
         .floating-shape { position: absolute; border-radius: 50%; animation: float 15s infinite; opacity: 0.3; }
         @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } }
 
@@ -229,7 +229,7 @@
         @keyframes countdownAnim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         .countdown-text { font-size: 50px; color: var(--yellow); font-weight: bold; margin-top: 20px; }
 
-        /* End screen diperbaiki agar bisa diklik dan tidak tertutup footer */
+        /* End screen: dipastikan selalu paling atas dan bisa diklik */
         .end-screen { 
             display: none; 
             flex-direction: column; 
@@ -239,7 +239,9 @@
             flex: 1; 
             overflow-y: auto;
             position: relative;
-            z-index: 20;
+            z-index: 100;
+            isolation: isolate;
+            pointer-events: auto;
         }
         .end-card { 
             background: white; 
@@ -250,7 +252,8 @@
             width: 90%; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
             position: relative;
-            z-index: 30;
+            z-index: 101;
+            pointer-events: auto;
         }
         .end-title { font-size: 40px; margin-bottom: 20px; }
         .end-score { font-size: 60px; font-weight: bold; color: var(--primary); margin: 20px 0; }
@@ -258,14 +261,14 @@
         .end-status { font-size: 28px; font-weight: bold; margin: 20px 0; }
         .status-lulus { color: var(--green); }
         .status-belum { color: var(--accent); }
-        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 25px; position: relative; z-index: 40; }
-        .btn-secondary { padding: 12px 24px; background: #e0e0e0; color: #333; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 25px; position: relative; z-index: 102; pointer-events: auto; }
+        .btn-secondary { padding: 12px 24px; background: #e0e0e0; color: #333; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; position: relative; z-index: 103; pointer-events: auto; }
         .btn-secondary:hover:not(:disabled) { background: #d0d0d0; transform: translateY(-2px); }
         .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .feedback-container { margin-top: 20px; position: relative; z-index: 40; }
+        .feedback-container { margin-top: 20px; position: relative; z-index: 102; pointer-events: auto; }
         .feedback-title { font-size: 18px; margin-bottom: 10px; }
         .emoticons { display: flex; gap: 15px; justify-content: center; }
-        .emoticon-btn { font-size: 40px; cursor: pointer; background: none; border: none; transition: transform 0.2s; }
+        .emoticon-btn { font-size: 40px; cursor: pointer; background: none; border: none; transition: transform 0.2s; position: relative; z-index: 103; pointer-events: auto; }
         .emoticon-btn:hover { transform: scale(1.3); }
 
         /* Responsive mobile */
@@ -592,6 +595,7 @@
             }
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            document.getElementById('countdownOverlay').style.display = 'none';
 
             currentRoomId = roomId;
             const total = roomConfig[roomId].total;
@@ -756,9 +760,11 @@
         function endGame() {
             isGameActive = false;
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            document.getElementById('countdownOverlay').style.display = 'none';
             playGameEndSound();
             speakEnglish("Game Over!"); // Suara Bahasa Inggris saat Game Over
-            
+
             document.getElementById('gameArea').style.display = 'none';
             document.getElementById('endScreen').style.display = 'flex';
             document.getElementById('endScore').textContent = score;
