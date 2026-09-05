@@ -386,8 +386,9 @@
         <div class="game-title">GAME EDUKASI ANAK</div>
         <div class="game-subtitle">Petualangan Belajar Seru bersama KIBSA</div>
         <input type="text" id="playerNameInput" class="login-input" placeholder="Masukkan Nama Lengkap Kamu" maxlength="30" autocomplete="off">
+        <input type="text" id="playerIdInput" class="login-input" placeholder="Masukkan No. ID KIBSA" maxlength="30" autocomplete="off">
         <button class="btn-primary" id="btnLogin">🚀 Mulai Belajar</button>
-        <div style="margin-top:15px; font-size:14px; color:#999;">Tidak perlu password, cukup nama saja!</div>
+        <div style="margin-top:15px; font-size:14px; color:#999;">Gunakan Nomor ID KIBSA kamu agar progres belajar tidak tertukar!</div>
     </div>
 
     <div class="footer">
@@ -476,6 +477,7 @@
 
         // State
         let currentPlayerName = '';
+        let currentPlayerId = '';
         let currentRoomId = 1;
         let highestUnlocked = 1;
         let questions = [];
@@ -559,10 +561,10 @@
         }
 
         // Utility
-        function sanitizeName(name) { return name.trim().replace(/\s+/g,'_').toLowerCase(); }
-        function getPlayerRef(name) { return db.ref('gea_players/'+sanitizeName(name)); }
-        async function loadPlayerProgress(name) { const snap = await getPlayerRef(name).once('value'); return snap.val() || null; }
-        async function savePlayerProgress(name,data) { await getPlayerRef(name).update(data); }
+        function sanitizeId(id) { return id.trim().replace(/\s+/g,'_').toLowerCase(); }
+        function getPlayerRef(id) { return db.ref('gea_players/'+sanitizeId(id)); }
+        async function loadPlayerProgress(id) { const snap = await getPlayerRef(id).once('value'); return snap.val() || null; }
+        async function savePlayerProgress(id,data) { await getPlayerRef(id).update(data); }
 
         // Question generators
         function generateQuestions(total) {
@@ -1238,13 +1240,13 @@
 
         async function saveBrainRushProgress(level, passed) {
             try {
-                const data = await loadPlayerProgress(currentPlayerName);
+                const data = await loadPlayerProgress(currentPlayerId);
                 const scores = data?.brainrush_scores || {};
                 scores[level] = { score: brScore, correct: brCorrect, total: brQuestions.length, passed };
                 let newHighest = brainRushHighest;
                 const idx = brainRushOrder.indexOf(level);
                 if (passed && idx < brainRushOrder.length - 1 && newHighest <= idx) newHighest = idx + 1;
-                await savePlayerProgress(currentPlayerName, { brainrush_highest: newHighest, brainrush_scores: scores });
+                await savePlayerProgress(currentPlayerId, { brainrush_highest: newHighest, brainrush_scores: scores });
                 brainRushHighest = newHighest;
                 renderBrainRush();
             } catch (e) { console.error('Error saving brain rush progress:', e); }
@@ -1277,7 +1279,7 @@
 
         async function saveProgress(passed) {
             try {
-                const data = await loadPlayerProgress(currentPlayerName);
+                const data = await loadPlayerProgress(currentPlayerId);
                 const scores = data?.scores_per_room || {};
                 scores[currentRoomId] = { score, correct: correctCount, total: questions.length, passed };
                 let newHighest = highestUnlocked;
@@ -1285,7 +1287,7 @@
                 if (passed && currentIndex < roomOrder.length - 1) {
                     newHighest = roomOrder[currentIndex + 1];
                 }
-                await savePlayerProgress(currentPlayerName, { highest_room_unlocked: newHighest, scores_per_room: scores });
+                await savePlayerProgress(currentPlayerId, { highest_room_unlocked: newHighest, scores_per_room: scores });
                 highestUnlocked = newHighest;
                 if (currentRoomId === 'C' && passed) {
                     brainRushUnlocked = true;
@@ -1300,7 +1302,7 @@
                 btn.addEventListener('click', async () => {
                     const value = btn.dataset.value;
                     try {
-                        await savePlayerProgress(currentPlayerName, { feedback_emoticon: value });
+                        await savePlayerProgress(currentPlayerId, { feedback_emoticon: value });
                         alert('Terima kasih atas feedbackmu! 😊');
                     } catch (e) { console.error('Error saving feedback:', e); }
                 });
@@ -1311,22 +1313,31 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btnLogin').addEventListener('click', async () => {
                 const name = document.getElementById('playerNameInput').value.trim();
+                const id = document.getElementById('playerIdInput').value.trim();
                 if (!name) { alert('Masukkan nama kamu dulu ya! 😊'); return; }
+                if (!id) { alert('Masukkan No. ID KIBSA kamu dulu ya! 😊'); return; }
                 currentPlayerName = name;
+                currentPlayerId = id;
                 initAudio();
                 try {
-                    const progress = await loadPlayerProgress(name);
+                    const progress = await loadPlayerProgress(id);
                     highestUnlocked = progress?.highest_room_unlocked || 1;
                     const cRoomScore = progress?.scores_per_room?.['C'];
                     brainRushUnlocked = !!(cRoomScore && cRoomScore.passed);
                     brainRushHighest = progress?.brainrush_highest || 0;
                 } catch (e) { highestUnlocked = 1; brainRushUnlocked = false; brainRushHighest = 0; }
+                try {
+                    await savePlayerProgress(id, { name: name, player_id: id });
+                } catch (e) { console.error('Error saving player identity:', e); }
                 document.getElementById('headerAvatar').textContent = name.charAt(0).toUpperCase();
-                document.getElementById('headerPlayerName').textContent = name;
+                document.getElementById('headerPlayerName').textContent = `${name} (ID: ${id})`;
                 showMainContainer();
                 renderRooms();
                 renderBrainRush();
                 setupUlasanListener();
+            });
+            document.getElementById('playerIdInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') document.getElementById('btnLogin').click();
             });
             document.getElementById('playerNameInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') document.getElementById('btnLogin').click();
