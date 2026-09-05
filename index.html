@@ -293,9 +293,36 @@
             margin: 15px 0;
         }
         .memory-hint { text-align: center; color: #888; font-size: 14px; margin-top: -5px; margin-bottom: 15px; }
-        .br-input-container { display: flex; gap: 15px; align-items: center; }
-        .br-input { flex: 1; padding: 15px; font-size: 22px; border: 3px solid var(--primary); border-radius: 15px; text-align: center; outline: none; }
-        .br-submit { padding: 15px 30px; background: linear-gradient(135deg,#48dbfb,#0abde3); color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .br-input-container {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 12px !important;
+            align-items: stretch;
+        }
+        .br-input {
+            width: 100% !important;
+            box-sizing: border-box;
+            padding: 15px;
+            font-size: 22px;
+            border: 3px solid var(--primary);
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+        }
+        .br-submit {
+            width: 100% !important;
+            display: block !important;
+            box-sizing: border-box;
+            padding: 15px 30px;
+            background: linear-gradient(135deg,#48dbfb,#0abde3);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
         .br-feedback { font-size: 22px; font-weight: bold; text-align: center; margin-top: 15px; min-height: 30px; }
         .br-feedback.br-correct { color: var(--green); }
         .br-feedback.br-wrong { color: var(--accent); }
@@ -346,9 +373,36 @@
         .lv-lock-icon { position: absolute; top: 8px; right: 10px; font-size: 20px; }
 
         .lv-chances { font-size: 26px; text-align: center; margin: 10px 0; letter-spacing: 8px; }
-        .lv-input-container { display: flex; gap: 15px; align-items: center; }
-        .lv-input { flex: 1; padding: 15px; font-size: 22px; border: 3px solid var(--accent); border-radius: 15px; text-align: center; outline: none; }
-        .lv-submit { padding: 15px 30px; background: linear-gradient(135deg,#8e44ad,#c0392b); color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .lv-input-container {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 12px !important;
+            align-items: stretch;
+        }
+        .lv-input {
+            width: 100% !important;
+            box-sizing: border-box;
+            padding: 15px;
+            font-size: 22px;
+            border: 3px solid var(--accent);
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+        }
+        .lv-submit {
+            width: 100% !important;
+            display: block !important;
+            box-sizing: border-box;
+            padding: 15px 30px;
+            background: linear-gradient(135deg,#8e44ad,#c0392b);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
         .lv-submit:disabled { opacity: 0.5; cursor: not-allowed; }
         .lv-feedback { font-size: 18px; font-weight: bold; text-align: center; margin-top: 15px; min-height: 26px; }
         .lv-feedback.lv-correct { color: var(--green); }
@@ -379,7 +433,7 @@
 
         /* Game area */
         .game-area { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px 20px 60px 20px; overflow-y: auto; }
-        .focus-box { background: white; border-radius: 30px; padding: 40px; width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideIn 0.5s ease; position: relative; }
+        .focus-box { background: white; border-radius: 30px; padding: 40px; width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideIn 0.5s ease; position: relative; box-sizing: border-box; overflow: hidden; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .timer-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .timer-bar { flex: 1; height: 100px; height: 10px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
@@ -405,9 +459,36 @@
         .option-btn.wrong { background: var(--accent); color: white; border-color: var(--accent); animation: wrongShake 0.5s; }
         @keyframes correctPulse { 50% { transform: scale(1.05); } }
         @keyframes wrongShake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        .numeric-input-container { display: flex; gap: 15px; align-items: center; }
-        .numeric-input { flex: 1; padding: 15px; font-size: 24px; border: 3px solid var(--primary); border-radius: 15px; text-align: center; outline: none; }
-        .submit-numeric { padding: 15px 30px; background: var(--green); color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .numeric-input-container {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 12px !important;
+            align-items: stretch;
+        }
+        .numeric-input {
+            width: 100% !important;
+            box-sizing: border-box;
+            padding: 15px;
+            font-size: 24px;
+            border: 3px solid var(--primary);
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+        }
+        .submit-numeric {
+            width: 100% !important;
+            display: block !important;
+            box-sizing: border-box;
+            padding: 15px 30px;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
         .countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
         .countdown-number { font-size: 180px; font-weight: bold; color: white; animation: countdownAnim 1s ease; }
@@ -461,7 +542,7 @@
             .login-card { padding: 25px; }
             .game-title { font-size: 30px; }
             .options-grid { grid-template-columns: 1fr; }
-            .focus-box { padding: 20px; }
+            .focus-box { padding: 20px; max-width: 100%; overflow: hidden; box-sizing: border-box; }
             .countdown-number { font-size: 100px; }
             .countdown-text { font-size: 30px; }
             .end-score { font-size: 40px; }
@@ -487,14 +568,6 @@
                 max-height: 300px;
                 overflow-y: auto;
                 margin-top: 10px;
-            }
-            .numeric-input-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .numeric-input-container #numericAnswer,
-            .numeric-input-container .submit-numeric {
-                width: 100%;
             }
         }
     </style>
