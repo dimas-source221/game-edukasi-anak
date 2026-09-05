@@ -300,6 +300,60 @@
         .br-feedback.br-wrong { color: var(--accent); }
         .end-rating { font-size: 22px; font-weight: bold; margin: 10px 0 20px 0; padding: 12px; border-radius: 15px; background: #f8f9fa; }
 
+        /* ===== LEVEL 1-3 (fitur baru) ===== */
+        .level-section {
+            margin-top: 20px;
+            padding: 25px 20px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #2d0a31 0%, #4a0e0e 60%, #1a0a2e 100%);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .level-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 25% 25%, rgba(255,90,90,0.18), transparent 45%),
+                        radial-gradient(circle at 75% 75%, rgba(155,89,255,0.18), transparent 45%);
+            pointer-events: none;
+        }
+        .level-header { text-align: center; margin-bottom: 20px; position: relative; z-index: 1; }
+        .level-title { font-size: 26px; font-weight: bold; color: #FF6B6B; letter-spacing: 1px; text-shadow: 0 0 15px rgba(255,107,107,0.5); }
+        .level-slogan { font-size: 13px; color: #d6a0ff; font-style: italic; margin-top: 6px; }
+        .level-locked-msg { text-align: center; color: #ccc; font-size: 14px; padding: 15px; position: relative; z-index: 1; }
+        .level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; position: relative; z-index: 1; }
+        .lv-card {
+            border-radius: 18px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+        .lv-card.locked { opacity: 0.45; cursor: not-allowed; }
+        .lv-card:hover:not(.locked) { transform: translateY(-6px) scale(1.02); }
+        .lv-card.lv-1 { background: linear-gradient(145deg, #8e44ad, #6c3483); box-shadow: 0 8px 20px rgba(142,68,173,0.5); }
+        .lv-card.lv-2 { background: linear-gradient(145deg, #c0392b, #922b21); box-shadow: 0 8px 20px rgba(192,57,43,0.5); }
+        .lv-card.lv-3 { background: linear-gradient(145deg, #1a1a2e, #000000); box-shadow: 0 8px 25px rgba(255,0,0,0.4); border-color: rgba(255,80,80,0.5); }
+        .lv-card.lv-3:not(.locked) { animation: level3Glow 2.5s infinite; }
+        @keyframes level3Glow { 0%,100% { box-shadow: 0 8px 25px rgba(255,0,0,0.4); } 50% { box-shadow: 0 8px 35px rgba(255,0,0,0.8); } }
+        .lv-icon { font-size: 40px; margin-bottom: 8px; }
+        .lv-name { font-size: 18px; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .lv-tagline { font-size: 12px; color: rgba(255,255,255,0.9); margin: 4px 0 8px 0; font-weight: 600; }
+        .lv-info { font-size: 12px; color: rgba(255,255,255,0.85); }
+        .lv-lock-icon { position: absolute; top: 8px; right: 10px; font-size: 20px; }
+
+        .lv-chances { font-size: 26px; text-align: center; margin: 10px 0; letter-spacing: 8px; }
+        .lv-input-container { display: flex; gap: 15px; align-items: center; }
+        .lv-input { flex: 1; padding: 15px; font-size: 22px; border: 3px solid var(--accent); border-radius: 15px; text-align: center; outline: none; }
+        .lv-submit { padding: 15px 30px; background: linear-gradient(135deg,#8e44ad,#c0392b); color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .lv-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lv-feedback { font-size: 18px; font-weight: bold; text-align: center; margin-top: 15px; min-height: 26px; }
+        .lv-feedback.lv-correct { color: var(--green); }
+        .lv-feedback.lv-wrong { color: var(--accent); }
+        .lv-feedback.lv-info-fb { color: #8e44ad; }
+
         /* Sidebar ulasan */
         .room-menu-right {
             flex: 1;
@@ -531,6 +585,15 @@
                     <div id="brainRushLockedMsg" class="brain-rush-locked-msg" style="display:none;">🔒 Selesaikan Room C terlebih dahulu untuk membuka Brain Rush Challenge!</div>
                     <div class="brain-rush-grid" id="brainRushGrid"></div>
                 </div>
+
+                <div class="level-section" id="levelSection">
+                    <div class="level-header">
+                        <div class="level-title">🔥 LEVEL 1 - 2 - 3</div>
+                        <div class="level-slogan">Extreme Reasoning Challenge — setelah MASTER, giliranmu diuji sungguhan.</div>
+                    </div>
+                    <div id="levelLockedMsg" class="level-locked-msg" style="display:none;">🔒 Selesaikan MASTER terlebih dahulu untuk membuka Level 1-3!</div>
+                    <div class="level-grid" id="levelGrid"></div>
+                </div>
             </div>
             <div class="room-menu-right">
                 <div class="ulasan-title">📋 ULASAN</div>
@@ -616,7 +679,7 @@
 
         // ===== BRAIN RUSH CHALLENGE (fitur baru) - state terpisah dari room lama =====
         let isBrainRushMode = false;
-        let lastGameWasBrainRush = false;
+        let lastGameType = 'room'; // 'room' | 'brainrush' | 'level'
         let currentBrainRushRoom = null;
         let brainRushUnlocked = false;
         let brainRushHighest = 0; // index di brainRushOrder yang terbuka
@@ -639,6 +702,34 @@
         let brTimerInterval = null;
         let brTimeLeft = 15;
         let brWarningPlayed = false;
+
+        // ===== LEVEL 1-3 (fitur baru) - modul terpisah, extreme reasoning setelah Master =====
+        let isLevelMode = false;
+        let currentLevelKey = null;
+        let levelUnlocked = false; // terbuka setelah Master lulus
+        let levelHighest = 0; // index di levelOrder yang terbuka
+        const levelOrder = ['level1', 'level2', 'level3'];
+        const levelMeta = {
+            level1: { icon: '🧩', name: 'LEVEL 1', tagline: 'Wah, mulai serius.', cls: 'lv-1' },
+            level2: { icon: '🌀', name: 'LEVEL 2', tagline: 'Ini mulai bikin pusing.', cls: 'lv-2' },
+            level3: { icon: '🧠', name: 'LEVEL 3', tagline: 'Menguji cara berpikir.', cls: 'lv-3' }
+        };
+        const levelConfig = {
+            level1: { total: 10, time: 10, maxAttempts: 3 },
+            level2: { total: 10, time: 10, maxAttempts: 3 },
+            level3: { total: 10, time: 10, maxAttempts: 3 }
+        };
+        let lvQuestions = [];
+        let lvIndex = 0;
+        let lvAttempt = 1;
+        let lvChances = 3;
+        let lvScore = 0;
+        let lvCorrectCount = 0;
+        let lvFailedCount = 0;
+        let lvTotalAttempts = 0;
+        let lvTimerInterval = null;
+        let lvTimeLeft = 10;
+        let lvSubmitLocked = false;
 
         // Audio & English Speech Synthesis
         function initAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -741,7 +832,9 @@
         // ===== GENERATOR SOAL BRAIN RUSH (fitur baru) =====
         function answerMatches(userInput, correct) {
             const norm = (s) => String(s).trim().toLowerCase().replace(/[\s\-,]/g, '');
-            return norm(userInput) === norm(correct);
+            const userNorm = norm(userInput);
+            if (Array.isArray(correct)) return correct.some(c => norm(c) === userNorm);
+            return userNorm === norm(correct);
         }
 
         function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -919,6 +1012,160 @@
             return qs;
         }
 
+        // ===== GENERATOR SOAL LEVEL 1-3 (fitur baru, extreme reasoning) =====
+        // --- LEVEL 1: lebih sulit dari Master - numerasi kontekstual, logika, attention, memory pendek, English sederhana, IPA ringan ---
+        const level1Generators = [
+            () => { // 1. Soal kontekstual multi-langkah (numerasi + urutan kejadian)
+                const start = randInt(10, 20), give = randInt(2, 5), buy = randInt(3, 6);
+                return { text: `Rani memiliki ${start} pensil. Ia memberikan ${give} pensil kepada Andi. Kemudian ia membeli ${buy} pensil lagi. Berapa pensil Rani sekarang?`, correct: start - give + buy, type: 'text' };
+            },
+            () => { // 2. Pola angka non-linear
+                const a = randInt(2, 4);
+                const seq = [a, a * 2, a * 4, a * 8];
+                return { text: `Perhatikan pola: ${seq.join(', ')}, ? — angka berikutnya adalah`, correct: a * 16, type: 'text' };
+            },
+            () => { // 3. Comparison trap (perbandingan dengan jebakan kata "lebih banyak")
+                const a = randInt(10, 20), diff = randInt(2, 8);
+                return { text: `Dina punya ${a} kelereng. Kelereng Dina ${diff} lebih banyak dari kelereng Budi. Berapa kelereng Budi?`, correct: a - diff, type: 'text' };
+            },
+            () => { // 4. Attention trap - membaca teliti angka dalam kalimat
+                const kids = randInt(4, 8), extra = randInt(1, 3);
+                return { text: `Di kelas ada ${kids} anak laki-laki dan ${kids + extra} anak perempuan. Berapa selisih jumlah anak perempuan dan laki-laki?`, correct: extra, type: 'text' };
+            },
+            () => { // 5. Memory pendek (angka)
+                const digits = [randInt(1, 9), randInt(1, 9), randInt(1, 9), randInt(1, 9)];
+                return { text: 'Ingat urutan 4 angka ini, lalu ketik kembali!', type: 'memory', sequence: digits.join(' - '), memorizeSeconds: 3, correct: digits.join('-') };
+            },
+            () => { // 6. English sederhana
+                const pairs = [
+                    { text: 'What is the English word for "kucing"?', correct: 'cat' },
+                    { text: 'What is the English word for "matahari"?', correct: 'sun' },
+                    { text: 'What is the English word for "buku"?', correct: 'book' },
+                    { text: 'What is the English word for "sekolah"?', correct: 'school' }
+                ];
+                const p = pairs[randInt(0, pairs.length - 1)];
+                return { text: p.text, correct: p.correct, type: 'text' };
+            },
+            () => { // 7. IPA ringan
+                const facts = [
+                    { text: 'Bagian tumbuhan yang berfungsi menyerap air dan mineral dari dalam tanah disebut?', correct: 'akar' },
+                    { text: 'Proses tumbuhan membuat makanan dengan bantuan cahaya matahari disebut?', correct: 'fotosintesis' },
+                    { text: 'Organ tubuh manusia yang memompa darah disebut?', correct: 'jantung' },
+                    { text: 'Planet yang paling dekat dengan matahari adalah?', correct: ['merkurius', 'merkuri'] }
+                ];
+                const f = facts[randInt(0, facts.length - 1)];
+                return { text: f.text, correct: f.correct, type: 'text' };
+            },
+            () => { // 8. Logika sederhana bertingkat
+                const total2 = randInt(20, 30), used = randInt(5, 10), broken = randInt(1, 4);
+                return { text: `Sebuah toko punya ${total2} telur. Terjual ${used} butir, dan ${broken} butir pecah. Berapa telur yang tersisa dan masih bisa dijual?`, correct: total2 - used - broken, type: 'text' };
+            },
+            () => { // 9. Sequence trap (pola turun)
+                const start = randInt(30, 50), step = randInt(3, 6);
+                const seq = [start, start - step, start - step * 2];
+                return { text: `${seq.join(', ')}, ? — lanjutkan polanya`, correct: start - step * 3, type: 'text' };
+            },
+            () => { // 10. Reasoning: informasi harus digabung
+                const a = randInt(3, 6), b = randInt(2, 4);
+                return { text: `Setiap kotak berisi ${a} bola. Ada ${b} kotak penuh dan 1 kotak berisi setengah dari isi penuh. Berapa total bola semuanya?`, correct: a * b + Math.floor(a / 2), type: 'text' };
+            }
+        ];
+
+        // --- LEVEL 2: kombinasi lintas mapel, multi-step reasoning, cross-subject ---
+        const level2Generators = [
+            () => { // 1. Matematika + logika bertingkat
+                const total2 = randInt(40, 60), half = Math.floor(total2 / 2), sub = randInt(3, 8);
+                return { text: `Ibu membeli ${total2} apel. Setengahnya diberikan ke tetangga. Dari sisanya, ${sub} apel dimakan. Berapa apel yang tersisa?`, correct: half - sub, type: 'text' };
+            },
+            () => { // 2. IPA + reasoning
+                return { text: 'Air akan berubah menjadi uap jika dipanaskan hingga mencapai titik didihnya, yaitu berapa derajat Celcius?', correct: 100, type: 'text' };
+            },
+            () => { // 3. Sejarah ringan tingkat SD
+                return { text: 'Indonesia memperingati hari kemerdekaannya setiap tanggal 17 Agustus. Pada tahun berapa Indonesia merdeka?', correct: 1945, type: 'text' };
+            },
+            () => { // 4. English + numerasi (multi-step reasoning)
+                const num = randInt(5, 9);
+                const words = ['five', 'six', 'seven', 'eight', 'nine'];
+                const idx = num - 5;
+                return { text: `If "${words[idx]}" means ${num} in English, what is ${num} + 3 in numbers?`, correct: num + 3, type: 'text' };
+            },
+            () => { // 5. Memory + attention gabungan
+                const symbols = ['⭐', '🔺', '🔷', '⚡'];
+                const chosen = [symbols[randInt(0, 3)], symbols[randInt(0, 3)], symbols[randInt(0, 3)], symbols[randInt(0, 3)]];
+                const target = symbols[randInt(0, 3)];
+                const count = chosen.filter(s => s === target).length;
+                return { text: `Ingat urutan simbol ini, lalu sebutkan: ada berapa jumlah ${target}?`, type: 'memory', sequence: chosen.join('  '), memorizeSeconds: 4, correct: count };
+            },
+            () => { // 6. IPAS: peta/lingkungan sederhana
+                return { text: 'Wilayah Indonesia terletak di antara 2 benua dan 2 samudra. Sebutkan jumlah total benua yang mengapitnya (dalam angka)!', correct: 2, type: 'text' };
+            },
+            () => { // 7. Logika + informasi tersembunyi (harus disaring)
+                const bags = randInt(3, 5), perBag = randInt(6, 10), lost = randInt(2, 5);
+                return { text: `Seorang pedagang punya ${bags} karung beras, masing-masing berisi ${perBag} kg. Dalam perjalanan, ${lost} kg beras tumpah dari salah satu karung. Berapa kg total beras yang tersisa?`, correct: bags * perBag - lost, type: 'text' };
+            },
+            () => { // 8. Cross-subject: matematika + waktu
+                const startHour = randInt(1, 10), duration = randInt(2, 5);
+                const endHour = (startHour + duration) > 12 ? (startHour + duration - 12) : (startHour + duration);
+                return { text: `Andi mulai belajar pukul ${startHour}.00 dan belajar selama ${duration} jam. Pukul berapa Andi selesai belajar? (Jawab dalam angka jam saja, contoh: 5)`, correct: endHour, type: 'text' };
+            },
+            () => { // 9. Trap kesimpulan (informasi awal berubah)
+                const a = randInt(10, 20);
+                return { text: `Sebuah kelas awalnya berisi ${a} siswa. Ternyata 2 siswa pindah ke kelas lain, lalu ada 5 siswa baru pindah masuk. Berapa jumlah siswa di kelas itu SEKARANG?`, correct: a - 2 + 5, type: 'text' };
+            },
+            () => { // 10. Reasoning gabungan (matematika + logika perbandingan)
+                const a = randInt(15, 25), b = randInt(5, 10);
+                return { text: `Umur Kakak ${a} tahun, dan umur Kakak ${b} tahun lebih tua dari Adik. Berapa umur Adik?`, correct: a - b, type: 'text' };
+            }
+        ];
+
+        // --- LEVEL 3: extreme reasoning - kombinasi 3 informasi, jebakan logika, tetap materi SD ---
+        const level3Generators = [
+            () => { // 1. Multi-informasi (A+B+C harus digabung)
+                const start = randInt(30, 50), sold = randInt(10, 15), returned = randInt(2, 5), newStock = randInt(8, 12);
+                return { text: `Sebuah toko punya ${start} buku. Hari ini terjual ${sold} buku, tapi ${returned} buku dikembalikan pembeli karena rusak. Sore harinya toko menerima ${newStock} buku baru. Berapa total buku di toko sekarang?`, correct: start - sold + returned + newStock, type: 'text' };
+            },
+            () => { // 2. Logical trap - kesimpulan yang tampak sederhana tapi menjebak
+                return { text: `Semua burung bisa terbang. Pinguin adalah burung. Apakah pinguin bisa terbang menurut logika kalimat ini? (Jawab: ya/tidak)`, correct: 'ya', type: 'text' };
+            },
+            () => { // 3. Numerical reasoning kompleks (pola kuadrat)
+                const seq = [1, 4, 9, 16];
+                return { text: `Perhatikan pola: ${seq.join(', ')}, ? — angka ini adalah hasil dari 1×1, 2×2, 3×3, 4×4. Berapa angka selanjutnya?`, correct: 25, type: 'text' };
+            },
+            () => { // 4. Scientific reasoning (IPA + logika sebab-akibat)
+                return { text: 'Benda berwarna gelap menyerap panas lebih banyak dari benda berwarna terang. Jika 2 baju dijemur di bawah matahari yang sama, baju mana yang akan terasa LEBIH PANAS: baju hitam atau baju putih? (Jawab salah satu kata saja)', correct: 'hitam', type: 'text' };
+            },
+            () => { // 5. Cross-subject: sejarah + numerasi
+                return { text: 'Indonesia merdeka tahun 1945. Pada tahun berapa Indonesia merayakan HUT ke-80 kemerdekaannya?', correct: 2025, type: 'text' };
+            },
+            () => { // 6. Memory + reasoning gabungan
+                const digits = [randInt(1, 9), randInt(1, 9), randInt(1, 9), randInt(1, 9), randInt(1, 9)];
+                const sum = digits[0] + digits[digits.length - 1];
+                return { text: 'Ingat urutan angka ini, lalu jawab: angka pertama + angka terakhir = ?', type: 'memory', sequence: digits.join(' - '), memorizeSeconds: 4, correct: sum };
+            },
+            () => { // 7. English comprehension sederhana
+                return { text: 'Read: "Sarah has 3 apples. She gives 1 apple to her friend." How many apples does Sarah have now? (Answer in number)', correct: 2, type: 'text' };
+            },
+            () => { // 8. Common assumption trap
+                const total3 = randInt(10, 15) * 2; // pastikan genap agar "separuh" tidak ambigu
+                return { text: `Dalam sebuah kotak berisi ${total3} kelereng: separuhnya berwarna merah, dan SISANYA berwarna biru. Berapa kelereng biru?`, correct: total3 / 2, type: 'text' };
+            },
+            () => { // 9. Information filtering trap (ada info yang tidak relevan)
+                const price = randInt(2, 5) * 1000, qty = randInt(3, 6), name = 'Budi';
+                return { text: `${name} berumur 10 tahun. Ia membeli ${qty} permen seharga Rp${price} per buah. Berapa total uang yang harus dibayar ${name}? (Jawab hanya angkanya)`, correct: price * qty, type: 'text' };
+            },
+            () => { // 10. Multi-step problem solving final
+                const a = randInt(5, 10), b = randInt(2, 4), c = randInt(3, 6);
+                return { text: `Sebuah kandang ayam berisi ${a} ekor ayam. Setiap ayam bertelur ${b} butir per hari. Dari semua telur itu, ${c} butir dijual setiap hari. Berapa sisa telur setelah 1 hari?`, correct: (a * b) - c, type: 'text' };
+            }
+        ];
+
+        function generateLevelQuestions(levelKey, total) {
+            const generators = levelKey === 'level1' ? level1Generators : levelKey === 'level2' ? level2Generators : level3Generators;
+            const qs = [];
+            for (let i = 0; i < total; i++) qs.push(generators[i % generators.length]());
+            return qs;
+        }
+
         // UI functions
         function showLogin() { document.getElementById('loginScreen').style.display='block'; document.getElementById('mainContainer').style.display='none'; }
         function showMainContainer() {
@@ -934,6 +1181,7 @@
             document.getElementById('endScreen').style.display='none';
             renderRooms();
             renderBrainRush();
+            renderLevelSection();
         }
 
         function renderRooms() {
@@ -985,6 +1233,35 @@
             });
         }
 
+        function renderLevelSection() {
+            const lockedMsg = document.getElementById('levelLockedMsg');
+            const grid = document.getElementById('levelGrid');
+            if (!levelUnlocked) {
+                lockedMsg.style.display = 'block';
+                grid.style.display = 'none';
+                return;
+            }
+            lockedMsg.style.display = 'none';
+            grid.style.display = 'grid';
+            grid.innerHTML = '';
+            levelOrder.forEach((key, idx) => {
+                const meta = levelMeta[key];
+                const config = levelConfig[key];
+                const unlocked = levelHighest >= idx;
+                const card = document.createElement('div');
+                card.className = `lv-card ${meta.cls}` + (unlocked ? '' : ' locked');
+                card.innerHTML = `
+                    <div class="lv-lock-icon">${unlocked ? '🔓' : '🔒'}</div>
+                    <div class="lv-icon">${meta.icon}</div>
+                    <div class="lv-name">${meta.name}</div>
+                    <div class="lv-tagline">${meta.tagline}</div>
+                    <div class="lv-info">${config.total} Soal · ${config.time} Detik/Attempt · 3 Kesempatan</div>
+                `;
+                if (unlocked) card.addEventListener('click', () => startLevel(key));
+                grid.appendChild(card);
+            });
+        }
+
         function setupUlasanListener() {
             db.ref('gea_players').off();
             db.ref('gea_players').on('value',(snapshot)=>{
@@ -1020,9 +1297,11 @@
             }
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (brTimerInterval) { clearInterval(brTimerInterval); brTimerInterval = null; }
+            if (lvTimerInterval) { clearInterval(lvTimerInterval); lvTimerInterval = null; }
             if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
             document.getElementById('countdownOverlay').style.display = 'none';
             isBrainRushMode = false;
+            isLevelMode = false;
 
             currentRoomId = roomId;
             const total = roomConfig[roomId].total;
@@ -1069,6 +1348,7 @@
                     overlay.style.display = 'none';
                     numberEl.style.color = 'white';
                     if (isBrainRushMode) showBrainRushQuestion();
+                    else if (isLevelMode) showLevelQuestion();
                     else showQuestion();
                 }
             }, 1000);
@@ -1194,10 +1474,12 @@
             }
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (brTimerInterval) { clearInterval(brTimerInterval); brTimerInterval = null; }
+            if (lvTimerInterval) { clearInterval(lvTimerInterval); lvTimerInterval = null; }
             if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
             document.getElementById('countdownOverlay').style.display = 'none';
 
             isBrainRushMode = true;
+            isLevelMode = false;
             currentBrainRushRoom = level;
             const config = brainRushConfig[level];
             brQuestions = generateBrainRushQuestions(level, config.total);
@@ -1321,6 +1603,7 @@
         function endBrainRush() {
             isBrainRushMode = false;
             lastGameWasBrainRush = true;
+            lastGameType = 'brainrush';
             if (brTimerInterval) { clearInterval(brTimerInterval); brTimerInterval = null; }
             if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
             document.getElementById('countdownOverlay').style.display = 'none';
@@ -1360,13 +1643,236 @@
                 if (passed && idx < brainRushOrder.length - 1 && newHighest <= idx) newHighest = idx + 1;
                 await savePlayerProgress(currentPlayerId, { brainrush_highest: newHighest, brainrush_scores: scores });
                 brainRushHighest = newHighest;
+                if (level === 'master' && passed) {
+                    levelUnlocked = true;
+                    renderLevelSection();
+                }
                 renderBrainRush();
             } catch (e) { console.error('Error saving brain rush progress:', e); }
+        }
+
+        // ===== ALUR GAMEPLAY LEVEL 1-3 (fitur baru, extreme reasoning) =====
+        function startLevel(levelKey) {
+            const idx = levelOrder.indexOf(levelKey);
+            if (!levelUnlocked || levelHighest < idx) {
+                alert('Level ini masih terkunci! Selesaikan tahap sebelumnya dulu.');
+                return;
+            }
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if (brTimerInterval) { clearInterval(brTimerInterval); brTimerInterval = null; }
+            if (lvTimerInterval) { clearInterval(lvTimerInterval); lvTimerInterval = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            document.getElementById('countdownOverlay').style.display = 'none';
+
+            isBrainRushMode = false;
+            isLevelMode = true;
+            currentLevelKey = levelKey;
+            const config = levelConfig[levelKey];
+            lvQuestions = generateLevelQuestions(levelKey, config.total);
+            lvIndex = 0; lvAttempt = 1; lvChances = config.maxAttempts;
+            lvScore = 0; lvCorrectCount = 0; lvFailedCount = 0; lvTotalAttempts = 0;
+            lvSubmitLocked = false;
+
+            document.getElementById('roomMenu').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'flex';
+            document.getElementById('endScreen').style.display = 'none';
+            startCountdown();
+        }
+
+        function showLevelQuestion() {
+            if (lvIndex >= lvQuestions.length) { endLevel(); return; }
+            // attempt baru dimulai untuk soal (yang bisa jadi sama seperti sebelumnya jika retry)
+            lvSubmitLocked = false;
+            const q = lvQuestions[lvIndex];
+            if (q.type === 'memory') showLevelMemorizePhase(q);
+            else renderLevelAnswerUI(q);
+        }
+
+        function showLevelMemorizePhase(q) {
+            const focusBox = document.getElementById('focusBox');
+            const meta = levelMeta[currentLevelKey];
+            focusBox.innerHTML = `
+                <div class="question-category">${meta.icon} ${meta.name} - Question ${lvIndex + 1} / ${lvQuestions.length}</div>
+                <div class="memory-hint">👀 Ingat baik-baik...</div>
+                <div class="memory-display">${q.sequence}</div>
+            `;
+            const seconds = q.memorizeSeconds || 3;
+            setTimeout(() => { renderLevelAnswerUI(q); }, seconds * 1000);
+        }
+
+        function renderChancesHtml() {
+            let html = '';
+            for (let i = 0; i < lvChances; i++) html += '❤️';
+            for (let i = lvChances; i < levelConfig[currentLevelKey].maxAttempts; i++) html += '🖤';
+            return html;
+        }
+
+        function renderLevelAnswerUI(q) {
+            const focusBox = document.getElementById('focusBox');
+            const meta = levelMeta[currentLevelKey];
+            const questionLabel = (q.type === 'memory') ? 'Ketik kembali yang kamu ingat!' : q.text;
+            focusBox.innerHTML = `
+                <div class="timer-container">
+                    <div class="timer-bar"><div class="timer-progress" id="timerProgress" style="width:100%"></div></div>
+                    <div class="timer-text" id="timerText">10</div>
+                </div>
+                <div class="question-category">${meta.icon} ${meta.name} - Question ${lvIndex + 1} / ${lvQuestions.length}</div>
+                <div class="lv-chances" id="lvChancesDisplay">${renderChancesHtml()}</div>
+                <div class="question-text">${questionLabel}</div>
+                <div class="lv-input-container">
+                    <input type="text" id="lvInput" class="lv-input" placeholder="Ketik jawabanmu" autocomplete="off">
+                    <button class="lv-submit" id="lvSubmitBtn" onclick="handleLevelAnswer(false)">JAWAB</button>
+                </div>
+                <div class="lv-feedback" id="lvFeedback"></div>
+            `;
+            const inputEl = document.getElementById('lvInput');
+            inputEl.focus();
+            inputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLevelAnswer(false); });
+            lvResetTimer();
+        }
+
+        function lvResetTimer() {
+            if (lvTimerInterval) clearInterval(lvTimerInterval);
+            lvTimeLeft = 10;
+            lvUpdateTimerUI();
+            lvTimerInterval = setInterval(() => {
+                lvTimeLeft--;
+                lvUpdateTimerUI();
+                if (lvTimeLeft <= 3) playWarningBeep();
+                if (lvTimeLeft <= 0) {
+                    clearInterval(lvTimerInterval);
+                    lvTimerInterval = null;
+                    handleLevelAnswer(true); // waktu habis
+                }
+            }, 1000);
+        }
+
+        function lvUpdateTimerUI() {
+            const timerText = document.getElementById('timerText');
+            const progress = document.getElementById('timerProgress');
+            if (timerText) {
+                timerText.textContent = lvTimeLeft;
+                if (lvTimeLeft <= 3) timerText.classList.add('warning');
+                else timerText.classList.remove('warning');
+            }
+            if (progress) {
+                progress.style.width = (lvTimeLeft / 10) * 100 + '%';
+                progress.style.background = lvTimeLeft <= 3 ? '#FF0000' : 'var(--green)';
+            }
+        }
+
+        const lvAttemptScoreMap = { 1: 100, 2: 70, 3: 40 };
+        const lvThinkFeedbacks = [
+            'Belum tepat. Coba perhatikan lagi informasinya 👀',
+            'Masih ada kesempatan. Jangan terburu-buru 🧠',
+            'Coba cek lagi urutannya.'
+        ];
+
+        function handleLevelAnswer(timeUp) {
+            if (!isLevelMode) return;
+            if (lvSubmitLocked) return; // cegah double submission
+            lvSubmitLocked = true;
+            clearInterval(lvTimerInterval);
+            lvTimerInterval = null;
+
+            const q = lvQuestions[lvIndex];
+            const inputEl = document.getElementById('lvInput');
+            const submitBtn = document.getElementById('lvSubmitBtn');
+            if (inputEl) inputEl.disabled = true;
+            if (submitBtn) submitBtn.disabled = true;
+
+            const userAnswer = timeUp ? '' : (inputEl ? inputEl.value.trim() : '');
+            const isCorrect = !timeUp && userAnswer !== '' && answerMatches(userAnswer, q.correct);
+            const feedbackEl = document.getElementById('lvFeedback');
+            const isLastAttempt = lvAttempt >= levelConfig[currentLevelKey].maxAttempts;
+
+            lvTotalAttempts++;
+
+            if (isCorrect) {
+                lvCorrectCount++;
+                lvScore += lvAttemptScoreMap[lvAttempt] || 40;
+                playCorrectSound();
+                if (feedbackEl) { feedbackEl.textContent = 'Benar! 🔥'; feedbackEl.className = 'lv-feedback lv-correct'; }
+                setTimeout(() => { lvIndex++; lvAttempt = 1; lvChances = levelConfig[currentLevelKey].maxAttempts; showLevelQuestion(); }, 1300);
+                return;
+            }
+
+            // salah atau timeout
+            playWrongSound();
+            if (isLastAttempt) {
+                lvFailedCount++;
+                if (feedbackEl) { feedbackEl.textContent = 'Kesempatan habis. Kita lanjut ke soal berikutnya!'; feedbackEl.className = 'lv-feedback lv-wrong'; }
+                setTimeout(() => { lvIndex++; lvAttempt = 1; lvChances = levelConfig[currentLevelKey].maxAttempts; showLevelQuestion(); }, 1500);
+            } else {
+                lvChances--;
+                lvAttempt++;
+                const chancesEl = document.getElementById('lvChancesDisplay');
+                if (chancesEl) chancesEl.innerHTML = renderChancesHtml();
+                if (feedbackEl) {
+                    const msg = timeUp ? '⏰ Waktu habis! ' + lvThinkFeedbacks[randInt(0, lvThinkFeedbacks.length - 1)] : lvThinkFeedbacks[randInt(0, lvThinkFeedbacks.length - 1)];
+                    feedbackEl.textContent = msg;
+                    feedbackEl.className = 'lv-feedback lv-info-fb';
+                }
+                // soal tetap sama - retry setelah jeda singkat, timer reset ke 10
+                setTimeout(() => { renderLevelAnswerUI(q); }, 1500);
+            }
+        }
+
+        function getLevelPerformance(accuracy) {
+            if (accuracy >= 90) return 'Excellent Reasoning! 🧠🔥';
+            if (accuracy >= 75) return 'Great Job! 💪';
+            if (accuracy >= 60) return 'Good Effort! Keep Thinking!';
+            return 'Keep Practicing! Jangan menyerah!';
+        }
+
+        function endLevel() {
+            isLevelMode = false;
+            lastGameType = 'level';
+            if (lvTimerInterval) { clearInterval(lvTimerInterval); lvTimerInterval = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            document.getElementById('countdownOverlay').style.display = 'none';
+            playGameEndSound();
+            speakEnglish("Game Over!");
+
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'flex';
+            const meta = levelMeta[currentLevelKey];
+            document.getElementById('endTitle').textContent = `${meta.icon} ${meta.name} COMPLETE 🎉`;
+            document.getElementById('endScore').textContent = lvScore;
+            const accuracy = Math.round((lvCorrectCount / lvQuestions.length) * 100);
+            document.getElementById('endDetails').textContent = `Correct: ${lvCorrectCount}/${lvQuestions.length} | Failed: ${lvFailedCount} | Accuracy: ${accuracy}% | Attempts Used: ${lvTotalAttempts}`;
+            const passed = accuracy >= 60;
+            const statusEl = document.getElementById('endStatus');
+            if (passed) { statusEl.textContent = 'LULUS! 🎉'; statusEl.className = 'end-status status-lulus'; }
+            else { statusEl.textContent = 'BELUM TUNTAS 😢'; statusEl.className = 'end-status status-belum'; }
+            const ratingEl = document.getElementById('endRating');
+            ratingEl.style.display = 'block';
+            ratingEl.textContent = `🏅 ${getLevelPerformance(accuracy)}`;
+
+            const idx = levelOrder.indexOf(currentLevelKey);
+            const hasNext = idx < levelOrder.length - 1;
+            document.getElementById('btnNextRoom').disabled = !passed || !hasNext;
+            saveLevelProgress(currentLevelKey, passed);
+        }
+
+        async function saveLevelProgress(levelKey, passed) {
+            try {
+                const data = await loadPlayerProgress(currentPlayerId);
+                const scores = data?.level_scores || {};
+                scores[levelKey] = { score: lvScore, correct: lvCorrectCount, failed: lvFailedCount, total: lvQuestions.length, attempts: lvTotalAttempts, passed };
+                let newHighest = levelHighest;
+                const idx = levelOrder.indexOf(levelKey);
+                if (passed && idx < levelOrder.length - 1 && newHighest <= idx) newHighest = idx + 1;
+                await savePlayerProgress(currentPlayerId, { level_highest: newHighest, level_scores: scores });
+                levelHighest = newHighest;
+                renderLevelSection();
+            } catch (e) { console.error('Error saving level progress:', e); }
         }
 
         function endGame() {
             isGameActive = false;
             lastGameWasBrainRush = false;
+            lastGameType = 'room';
             document.getElementById('endRating').style.display = 'none';
             document.getElementById('endTitle').textContent = '🏁 GAME END!';
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
@@ -1464,13 +1970,17 @@
                 const cRoomScore = progress?.scores_per_room?.['C'];
                 brainRushUnlocked = !!(cRoomScore && cRoomScore.passed);
                 brainRushHighest = progress?.brainrush_highest || 0;
+                const masterScore = progress?.brainrush_scores?.['master'];
+                levelUnlocked = !!(masterScore && masterScore.passed);
+                levelHighest = progress?.level_highest || 0;
                 if (!currentPlayerGender) currentPlayerGender = progress?.gender || 'L';
-            } catch (e) { highestUnlocked = 1; brainRushUnlocked = false; brainRushHighest = 0; }
+            } catch (e) { highestUnlocked = 1; brainRushUnlocked = false; brainRushHighest = 0; levelUnlocked = false; levelHighest = 0; }
             document.getElementById('headerAvatar').textContent = genderAvatarEmoji(currentPlayerGender);
             document.getElementById('headerPlayerName').textContent = `${name} | ID: ${id}`;
             showMainContainer();
             renderRooms();
             renderBrainRush();
+            renderLevelSection();
             setupUlasanListener();
         }
 
@@ -1565,11 +2075,15 @@
             });
 
             document.getElementById('btnRetry').addEventListener('click', () => {
-                if (lastGameWasBrainRush) startBrainRush(currentBrainRushRoom);
+                if (lastGameType === 'level') startLevel(currentLevelKey);
+                else if (lastGameType === 'brainrush') startBrainRush(currentBrainRushRoom);
                 else startRoom(currentRoomId);
             });
             document.getElementById('btnNextRoom').addEventListener('click', () => {
-                if (lastGameWasBrainRush) {
+                if (lastGameType === 'level') {
+                    const idx = levelOrder.indexOf(currentLevelKey);
+                    if (idx < levelOrder.length - 1) startLevel(levelOrder[idx + 1]);
+                } else if (lastGameType === 'brainrush') {
                     const idx = brainRushOrder.indexOf(currentBrainRushRoom);
                     if (idx < brainRushOrder.length - 1) startBrainRush(brainRushOrder[idx + 1]);
                 } else {
