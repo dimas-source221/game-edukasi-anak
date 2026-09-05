@@ -170,6 +170,70 @@
         .room-info { font-size: 13px; color: #666; margin-bottom: 10px; }
         .room-lock-icon { position: absolute; top: 10px; right: 10px; font-size: 24px; }
 
+        /* ===== BRAIN RUSH CHALLENGE (fitur baru) ===== */
+        .brain-rush-section {
+            margin-top: 30px;
+            padding: 25px 20px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+        .brain-rush-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(255,215,0,0.15), transparent 40%),
+                        radial-gradient(circle at 80% 80%, rgba(72,219,251,0.15), transparent 40%);
+            pointer-events: none;
+        }
+        .brain-rush-header { text-align: center; margin-bottom: 20px; position: relative; z-index: 1; }
+        .brain-rush-title { font-size: 26px; font-weight: bold; color: #FFD700; letter-spacing: 1px; text-shadow: 0 0 15px rgba(255,215,0,0.5); }
+        .brain-rush-slogan { font-size: 13px; color: #a0d8ff; font-style: italic; margin-top: 6px; }
+        .brain-rush-locked-msg { text-align: center; color: #ccc; font-size: 14px; padding: 15px; position: relative; z-index: 1; }
+        .brain-rush-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; position: relative; z-index: 1; }
+        .br-card {
+            border-radius: 18px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+        .br-card.locked { opacity: 0.45; cursor: not-allowed; }
+        .br-card:hover:not(.locked) { transform: translateY(-6px) scale(1.02); }
+        .br-card.br-beginner { background: linear-gradient(145deg, #1dd1a1, #10ac84); box-shadow: 0 8px 20px rgba(29,209,161,0.4); }
+        .br-card.br-elite { background: linear-gradient(145deg, #48dbfb, #0abde3); box-shadow: 0 8px 20px rgba(72,219,251,0.4); }
+        .br-card.br-master { background: linear-gradient(145deg, #FFD700, #FF9F43); box-shadow: 0 8px 25px rgba(255,215,0,0.5); border-color: rgba(255,255,255,0.4); }
+        .br-card.br-master:not(.locked) { animation: masterGlow 2.5s infinite; }
+        @keyframes masterGlow { 0%,100% { box-shadow: 0 8px 25px rgba(255,215,0,0.5); } 50% { box-shadow: 0 8px 35px rgba(255,215,0,0.9); } }
+        .br-icon { font-size: 40px; margin-bottom: 8px; }
+        .br-name { font-size: 18px; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .br-tagline { font-size: 12px; color: rgba(255,255,255,0.9); margin: 4px 0 8px 0; font-weight: 600; }
+        .br-info { font-size: 12px; color: rgba(255,255,255,0.85); }
+        .br-lock-icon { position: absolute; top: 8px; right: 10px; font-size: 20px; }
+
+        .memory-display {
+            font-size: 42px;
+            font-weight: bold;
+            letter-spacing: 12px;
+            color: var(--primary);
+            text-align: center;
+            padding: 30px 10px;
+            background: #f0f0ff;
+            border-radius: 20px;
+            margin: 15px 0;
+        }
+        .memory-hint { text-align: center; color: #888; font-size: 14px; margin-top: -5px; margin-bottom: 15px; }
+        .br-input-container { display: flex; gap: 15px; align-items: center; }
+        .br-input { flex: 1; padding: 15px; font-size: 22px; border: 3px solid var(--primary); border-radius: 15px; text-align: center; outline: none; }
+        .br-submit { padding: 15px 30px; background: linear-gradient(135deg,#48dbfb,#0abde3); color: white; border: none; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .br-feedback { font-size: 22px; font-weight: bold; text-align: center; margin-top: 15px; min-height: 30px; }
+        .br-feedback.br-correct { color: var(--green); }
+        .br-feedback.br-wrong { color: var(--accent); }
+        .end-rating { font-size: 22px; font-weight: bold; margin: 10px 0 20px 0; padding: 12px; border-radius: 15px; background: #f8f9fa; }
+
         /* Sidebar ulasan */
         .room-menu-right {
             flex: 1;
@@ -346,6 +410,15 @@
             <div class="room-menu-left">
                 <div class="room-menu-title">🏆 Pilih Room Latihan</div>
                 <div class="rooms-grid" id="roomsGrid"></div>
+
+                <div class="brain-rush-section" id="brainRushSection">
+                    <div class="brain-rush-header">
+                        <div class="brain-rush-title">⚡ BRAIN RUSH CHALLENGE</div>
+                        <div class="brain-rush-slogan">"Think Fast. Remember More. Solve Smarter."</div>
+                    </div>
+                    <div id="brainRushLockedMsg" class="brain-rush-locked-msg" style="display:none;">🔒 Selesaikan Room C terlebih dahulu untuk membuka Brain Rush Challenge!</div>
+                    <div class="brain-rush-grid" id="brainRushGrid"></div>
+                </div>
             </div>
             <div class="room-menu-right">
                 <div class="ulasan-title">📋 ULASAN</div>
@@ -363,6 +436,7 @@
                 <div class="end-score" id="endScore">0</div>
                 <div class="end-details" id="endDetails">Benar: 0 | Salah: 0</div>
                 <div class="end-status" id="endStatus">BELUM TUNTAS</div>
+                <div class="end-rating" id="endRating" style="display:none;"></div>
                 <div class="btn-group">
                     <button class="btn-secondary" id="btnRetry">🔄 Ulangi Room</button>
                     <button class="btn-secondary" id="btnNextRoom" disabled>➡️ Lanjut ke Room Berikutnya</button>
@@ -425,6 +499,32 @@
             'B': { total: 30, minCorrect: 26, special: true },
             'C': { total: 35, minCorrect: 30, special: true }
         };
+
+        // ===== BRAIN RUSH CHALLENGE (fitur baru) - state terpisah dari room lama =====
+        let isBrainRushMode = false;
+        let lastGameWasBrainRush = false;
+        let currentBrainRushRoom = null;
+        let brainRushUnlocked = false;
+        let brainRushHighest = 0; // index di brainRushOrder yang terbuka
+        const brainRushOrder = ['beginner', 'elite', 'master'];
+        const brainRushMeta = {
+            beginner: { icon: '🟢', name: 'BEGINNER', tagline: 'Quick Thinking', cls: 'br-beginner' },
+            elite: { icon: '🔵', name: 'ELITE', tagline: 'Advanced Challenge', cls: 'br-elite' },
+            master: { icon: '👑', name: 'MASTER', tagline: 'Ultimate Brain Challenge', cls: 'br-master' }
+        };
+        const brainRushConfig = {
+            beginner: { total: 10, time: 15, minCorrectToPass: 6 },
+            elite: { total: 10, time: 15, minCorrectToPass: 6 },
+            master: { total: 10, time: 15, minCorrectToPass: 6 }
+        };
+        let brQuestions = [];
+        let brIndex = 0;
+        let brScore = 0;
+        let brCorrect = 0;
+        let brWrong = 0;
+        let brTimerInterval = null;
+        let brTimeLeft = 15;
+        let brWarningPlayed = false;
 
         // Audio & English Speech Synthesis
         function initAudio() { if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -524,6 +624,187 @@
             return { text:`Ingat! Sebutkan kembali: ${chosen}. Mana yang disebut?`, options:Array.from(opts).sort(()=>Math.random()-0.5), correct:chosen, type:'multiple' };
         }
 
+        // ===== GENERATOR SOAL BRAIN RUSH (fitur baru) =====
+        function answerMatches(userInput, correct) {
+            const norm = (s) => String(s).trim().toLowerCase().replace(/[\s\-,]/g, '');
+            return norm(userInput) === norm(correct);
+        }
+
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        // --- 10 jenis soal BEGINNER ---
+        const beginnerGenerators = [
+            () => { // 1. Pola angka sederhana
+                const step = randInt(2, 5); const start = randInt(1, 10);
+                const seq = [start, start + step, start + step * 2, start + step * 3];
+                return { text: `${seq.join(', ')}, ?`, correct: start + step * 4, type: 'text' };
+            },
+            () => { // 2. Angka yang hilang
+                const step = randInt(2, 4); const start = randInt(1, 10);
+                const full = [start, start + step, start + step * 2, start + step * 3, start + step * 4];
+                const missingIdx = randInt(1, 3);
+                const display = full.map((n, i) => i === missingIdx ? '?' : n);
+                return { text: `Lengkapi: ${display.join(', ')}`, correct: full[missingIdx], type: 'text' };
+            },
+            () => { // 3. Perhitungan cepat
+                const a = randInt(1, 20), b = randInt(1, 15);
+                const op = Math.random() < 0.5 ? '+' : '-';
+                if (op === '+') return { text: `${a} + ${b} = ?`, correct: a + b, type: 'text' };
+                const big = Math.max(a, b), small = Math.min(a, b);
+                return { text: `${big} - ${small} = ?`, correct: big - small, type: 'text' };
+            },
+            () => { // 4. Perbandingan angka
+                let a = randInt(1, 50), b = randInt(1, 50);
+                while (a === b) b = randInt(1, 50);
+                return { text: `Mana yang lebih besar, ${a} atau ${b}? Ketik angkanya.`, correct: Math.max(a, b), type: 'text' };
+            },
+            () => { // 5. Urutan angka
+                const nums = [randInt(1, 30), randInt(1, 30), randInt(1, 30)];
+                while (new Set(nums).size < 3) nums[2] = randInt(1, 30);
+                return { text: `Dari angka ${nums.join(', ')} — sebutkan yang paling kecil!`, correct: Math.min(...nums), type: 'text' };
+            },
+            () => { // 6. Logika sederhana
+                const a = randInt(2, 10);
+                return { text: `Jika 1 kotak berisi ${a} pensil, berapa pensil dalam 2 kotak?`, correct: a * 2, type: 'text' };
+            },
+            () => { // 7. Operasi matematika ringan
+                const a = randInt(2, 9), b = randInt(2, 5);
+                return { text: `${a} × ${b} = ?`, correct: a * b, type: 'text' };
+            },
+            () => { // 8. Memory angka pendek
+                const digits = [randInt(1, 9), randInt(1, 9), randInt(1, 9)];
+                return { text: 'Ingat 3 angka ini!', type: 'memory', sequence: digits.join(' - '), memorizeSeconds: 3, correct: digits.join('-') };
+            },
+            () => { // 9. Pola sederhana
+                const nums = [2, 4, 6, 8];
+                const start = randInt(1, 5) * 2;
+                const seq = [start, start + 2, start + 4];
+                return { text: `${seq.join(', ')}, ?`, correct: start + 6, type: 'text' };
+            },
+            () => { // 10. Ketelitian
+                const a = randInt(10, 40); const b = randInt(1, 9);
+                return { text: `Berapa hasil dari ${a} + ${b} - ${b}?`, correct: a, type: 'text' };
+            }
+        ];
+
+        // --- 10 jenis soal ELITE ---
+        const eliteGenerators = [
+            () => { // 1. Pola angka kompleks
+                const start = randInt(1, 5); const ratio = 2;
+                const seq = [start, start * ratio, start * ratio * ratio];
+                return { text: `${seq.join(', ')}, ?`, correct: start * ratio * ratio * ratio, type: 'text' };
+            },
+            () => { // 2. Operasi matematika campuran (perkalian didahulukan)
+                const a = randInt(1, 9), b = randInt(1, 9), c = randInt(1, 9);
+                return { text: `${a} + ${b} × ${c} = ?`, correct: a + b * c, type: 'text' };
+            },
+            () => { // 3. Logika urutan
+                const nums = [randInt(1, 50), randInt(1, 50), randInt(1, 50), randInt(1, 50)];
+                return { text: `Urutkan dari besar ke kecil, sebutkan angka TERBESAR: ${nums.join(', ')}`, correct: Math.max(...nums), type: 'text' };
+            },
+            () => { // 4. Memory challenge
+                const digits = [randInt(1, 9), randInt(1, 9), randInt(1, 9), randInt(1, 9)];
+                return { text: 'Ingat 4 angka ini!', type: 'memory', sequence: digits.join(' - '), memorizeSeconds: 3, correct: digits.join('-') };
+            },
+            () => { // 5. Logika waktu dan hari
+                const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                const startIdx = randInt(0, 6); const add = randInt(2, 5);
+                const resultDay = days[(startIdx + add) % 7];
+                return { text: `Hari ini ${days[startIdx]}. ${add} hari lagi hari apa?`, correct: resultDay, type: 'text' };
+            },
+            () => { // 6. Tebak angka berdasarkan petunjuk
+                const clues = [
+                    { text: 'Aku angka genap antara 10 dan 20, aku habis dibagi 3. Angka berapa aku?', correct: 12 },
+                    { text: 'Aku angka ganjil antara 20 dan 30, aku habis dibagi 5. Angka berapa aku?', correct: 25 },
+                    { text: 'Aku angka genap antara 1 dan 10, aku habis dibagi 4. Angka berapa aku?', correct: 8 },
+                    { text: 'Aku angka antara 30 dan 40, aku habis dibagi 6. Angka berapa aku?', correct: 36 }
+                ];
+                return { ...clues[randInt(0, clues.length - 1)], type: 'text' };
+            },
+            () => { // 7. Pola simbol
+                const symbols = ['🔺', '🔵'];
+                const pattern = [symbols[0], symbols[1], symbols[0], symbols[1], symbols[0]];
+                return { text: `Lanjutkan pola simbol: ${pattern.join(' ')} ? — Ketik 1 untuk 🔺 atau 2 untuk 🔵`, correct: 2, type: 'text' };
+            },
+            () => { // 8. Ketelitian tinggi
+                const a = randInt(10, 30), b = randInt(1, 10), c = randInt(1, 10);
+                return { text: `Hitung dengan teliti: (${a} - ${b}) + ${c} = ?`, correct: (a - b) + c, type: 'text' };
+            },
+            () => { // 9. Informasi tersembunyi
+                const total = randInt(20, 40); const used = randInt(5, 15);
+                return { text: `Andi punya ${total} kelereng, diberikan ke temannya ${used}. Sisa kelereng Andi?`, correct: total - used, type: 'text' };
+            },
+            () => { // 10. Soal jebakan yang tetap masuk akal
+                const a = randInt(5, 15);
+                return { text: `Setengah dari ${a * 2} ditambah ${a} sama dengan berapa?`, correct: a + a, type: 'text' };
+            }
+        ];
+
+        // --- 10 jenis soal MASTER ---
+        const masterGenerators = [
+            () => { // 1. MEMORY FLASH
+                const digits = [randInt(1, 9), randInt(1, 9), randInt(1, 9), randInt(1, 9), randInt(1, 9)];
+                return { text: 'Ingat urutan angka ini, lalu ketik kembali!', type: 'memory', sequence: digits.join(' - '), memorizeSeconds: 4, correct: digits.join('-') };
+            },
+            () => { // 2. MEMORY + MATEMATIKA
+                const digits = [randInt(1, 9), randInt(1, 9), randInt(1, 9)];
+                return { text: 'Ingat 3 angka ini, lalu jawab: angka pertama + angka terakhir = ?', type: 'memory', sequence: digits.join(' - '), memorizeSeconds: 3, correct: digits[0] + digits[2], followUp: true };
+            },
+            () => { // 3. POLA ANGKA KOMPLEKS
+                const seq = [2, 6, 12, 20];
+                const offset = randInt(0, 2);
+                const finalSeq = seq.map(n => n + offset);
+                const next = 30 + offset;
+                return { text: `${finalSeq.join(' → ')} → ?`, correct: next, type: 'text' };
+            },
+            () => { // 4. VISUAL ATTENTION
+                const fruits = ['🍎', '🍌', '🍇'];
+                const target = fruits[0];
+                let arr = [];
+                const count = randInt(3, 5);
+                for (let i = 0; i < 5; i++) arr.push(fruits[randInt(0, 2)]);
+                arr = arr.map((f, i) => i < count ? target : f);
+                arr.sort(() => Math.random() - 0.5);
+                const actualCount = arr.filter(f => f === target).length;
+                return { text: `${arr.join(' ')}  —  Berapa jumlah ${target}?`, correct: actualCount, type: 'text' };
+            },
+            () => { // 5. LOGICAL TRAP
+                const a = randInt(10, 20);
+                return { text: `Semua kucing punya 4 kaki. Ada ${a} ekor kucing. Berapa total kaki kucing?`, correct: a * 4, type: 'text' };
+            },
+            () => { // 6. LOGIKA + NUMERIK
+                const a = randInt(2, 10), b = randInt(2, 10);
+                return { text: `Jika a = ${a} dan b = ${b}, berapa hasil dari (a × b) - a?`, correct: (a * b) - a, type: 'text' };
+            },
+            () => { // 7. URUTAN DAN POLA
+                const start = randInt(1, 5);
+                const seq = [start, start + 1, start + 3, start + 6];
+                return { text: `${seq.join(', ')}, ?  (pola: +1, +2, +3, +4...)`, correct: start + 10, type: 'text' };
+            },
+            () => { // 8. MEMORY SIMBOL
+                const symbols = ['⭐', '❤️', '🔷', '⚡'];
+                const chosen = [symbols[randInt(0, 3)], symbols[randInt(0, 3)], symbols[randInt(0, 3)]];
+                const askIndex = randInt(0, 2);
+                return { text: `Ingat urutan simbol ini, lalu sebutkan posisi ke-${askIndex + 1} (ketik 1/2/3/4 sesuai urutan: ⭐=1 ❤️=2 🔷=3 ⚡=4)`, type: 'memory', sequence: chosen.join('  '), memorizeSeconds: 3, correct: symbols.indexOf(chosen[askIndex]) + 1 };
+            },
+            () => { // 9. HITUNG CEPAT
+                const a = randInt(10, 30), b = randInt(10, 30);
+                return { text: `${a} + ${b} = ?`, correct: a + b, type: 'text' };
+            },
+            () => { // 10. FINAL MASTER PUZZLE
+                const digits = [randInt(1, 9), randInt(1, 9)];
+                const extra = randInt(1, 9);
+                return { text: `Ingat 2 angka ini, lalu jawab: (angka pertama + angka kedua) × ${extra} = ?`, type: 'memory', sequence: digits.join(' - '), memorizeSeconds: 3, correct: (digits[0] + digits[1]) * extra, followUp: true };
+            }
+        ];
+
+        function generateBrainRushQuestions(level, total) {
+            const generators = level === 'beginner' ? beginnerGenerators : level === 'elite' ? eliteGenerators : masterGenerators;
+            const qs = [];
+            for (let i = 0; i < total; i++) qs.push(generators[i % generators.length]());
+            return qs;
+        }
+
         // UI functions
         function showLogin() { document.getElementById('loginScreen').style.display='block'; document.getElementById('mainContainer').style.display='none'; }
         function showMainContainer() {
@@ -538,6 +819,7 @@
             document.getElementById('gameArea').style.display='none';
             document.getElementById('endScreen').style.display='none';
             renderRooms();
+            renderBrainRush();
         }
 
         function renderRooms() {
@@ -556,6 +838,35 @@
                     <div class="room-info">${config.total} Soal<br>Minimal benar: ${config.minCorrect}</div>
                 `;
                 if (unlocked) card.addEventListener('click',()=>startRoom(roomId));
+                grid.appendChild(card);
+            });
+        }
+
+        function renderBrainRush() {
+            const lockedMsg = document.getElementById('brainRushLockedMsg');
+            const grid = document.getElementById('brainRushGrid');
+            if (!brainRushUnlocked) {
+                lockedMsg.style.display = 'block';
+                grid.style.display = 'none';
+                return;
+            }
+            lockedMsg.style.display = 'none';
+            grid.style.display = 'grid';
+            grid.innerHTML = '';
+            brainRushOrder.forEach((key, idx) => {
+                const meta = brainRushMeta[key];
+                const config = brainRushConfig[key];
+                const unlocked = brainRushHighest >= idx;
+                const card = document.createElement('div');
+                card.className = `br-card ${meta.cls}` + (unlocked ? '' : ' locked');
+                card.innerHTML = `
+                    <div class="br-lock-icon">${unlocked ? '🔓' : '🔒'}</div>
+                    <div class="br-icon">${meta.icon}</div>
+                    <div class="br-name">${meta.name}</div>
+                    <div class="br-tagline">${meta.tagline}</div>
+                    <div class="br-info">${config.total} Soal · ${config.time} Detik/Soal</div>
+                `;
+                if (unlocked) card.addEventListener('click', () => startBrainRush(key));
                 grid.appendChild(card);
             });
         }
@@ -594,8 +905,10 @@
                 return;
             }
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if (brTimerInterval) { clearInterval(brTimerInterval); brTimerInterval = null; }
             if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
             document.getElementById('countdownOverlay').style.display = 'none';
+            isBrainRushMode = false;
 
             currentRoomId = roomId;
             const total = roomConfig[roomId].total;
@@ -641,7 +954,8 @@
                     countdownInterval = null;
                     overlay.style.display = 'none';
                     numberEl.style.color = 'white';
-                    showQuestion();
+                    if (isBrainRushMode) showBrainRushQuestion();
+                    else showQuestion();
                 }
             }, 1000);
         }
@@ -757,8 +1071,190 @@
             }, 1500);
         }
 
+        // ===== ALUR GAMEPLAY BRAIN RUSH CHALLENGE (fitur baru) =====
+        function startBrainRush(level) {
+            const idx = brainRushOrder.indexOf(level);
+            if (!brainRushUnlocked || brainRushHighest < idx) {
+                alert('Challenge ini masih terkunci! Selesaikan tahap sebelumnya dulu.');
+                return;
+            }
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if (brTimerInterval) { clearInterval(brTimerInterval); brTimerInterval = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            document.getElementById('countdownOverlay').style.display = 'none';
+
+            isBrainRushMode = true;
+            currentBrainRushRoom = level;
+            const config = brainRushConfig[level];
+            brQuestions = generateBrainRushQuestions(level, config.total);
+            brIndex = 0; brScore = 0; brCorrect = 0; brWrong = 0;
+
+            document.getElementById('roomMenu').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'flex';
+            document.getElementById('endScreen').style.display = 'none';
+            startCountdown();
+        }
+
+        function showBrainRushQuestion() {
+            if (brIndex >= brQuestions.length) { endBrainRush(); return; }
+            const q = brQuestions[brIndex];
+            if (q.type === 'memory') showMemorizePhase(q);
+            else renderBrainRushAnswerUI(q);
+        }
+
+        function showMemorizePhase(q) {
+            const focusBox = document.getElementById('focusBox');
+            focusBox.innerHTML = `
+                <div class="question-category">⚡ Brain Rush - Soal ${brIndex + 1} dari ${brQuestions.length}</div>
+                <div class="memory-hint">👀 Ingat baik-baik...</div>
+                <div class="memory-display">${q.sequence}</div>
+            `;
+            const seconds = q.memorizeSeconds || 3;
+            setTimeout(() => { renderBrainRushAnswerUI(q); }, seconds * 1000);
+        }
+
+        function renderBrainRushAnswerUI(q) {
+            const focusBox = document.getElementById('focusBox');
+            const questionLabel = q.type === 'memory'
+                ? (q.followUp ? q.text.split(', lalu')[1] ? `Sekarang jawab: ${q.text.split('lalu jawab: ')[1] || q.text}` : q.text : 'Ketik kembali yang kamu ingat!')
+                : q.text;
+            focusBox.innerHTML = `
+                <div class="timer-container">
+                    <div class="timer-bar"><div class="timer-progress" id="timerProgress" style="width:100%"></div></div>
+                    <div class="timer-text" id="timerText">15</div>
+                </div>
+                <div class="question-category">⚡ Brain Rush - Soal ${brIndex + 1} dari ${brQuestions.length}</div>
+                <div class="question-text">${questionLabel}</div>
+                <div class="br-input-container">
+                    <input type="text" id="brInput" class="br-input" placeholder="Ketik jawabanmu" autocomplete="off">
+                    <button class="br-submit" onclick="handleBrainRushAnswer()">Jawab!</button>
+                </div>
+                <div class="br-feedback" id="brFeedback"></div>
+            `;
+            const inputEl = document.getElementById('brInput');
+            inputEl.focus();
+            inputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleBrainRushAnswer(); });
+            brResetTimer();
+        }
+
+        function brResetTimer() {
+            if (brTimerInterval) clearInterval(brTimerInterval);
+            brTimeLeft = 15;
+            brWarningPlayed = false;
+            brUpdateTimerUI();
+            brTimerInterval = setInterval(() => {
+                brTimeLeft--;
+                brUpdateTimerUI();
+                if (brTimeLeft <= 5 && !brWarningPlayed) { brWarningPlayed = true; }
+                if (brTimeLeft <= 5) playWarningBeep();
+                if (brTimeLeft <= 0) {
+                    clearInterval(brTimerInterval);
+                    brTimerInterval = null;
+                    handleBrainRushAnswer(true); // waktu habis
+                }
+            }, 1000);
+        }
+
+        function brUpdateTimerUI() {
+            const timerText = document.getElementById('timerText');
+            const progress = document.getElementById('timerProgress');
+            if (timerText) {
+                timerText.textContent = brTimeLeft;
+                if (brTimeLeft <= 5) timerText.classList.add('warning');
+                else timerText.classList.remove('warning');
+            }
+            if (progress) {
+                progress.style.width = (brTimeLeft / 15) * 100 + '%';
+                progress.style.background = brTimeLeft <= 5 ? '#FF0000' : 'var(--green)';
+            }
+        }
+
+        function handleBrainRushAnswer(timeUp) {
+            if (!isBrainRushMode) return;
+            clearInterval(brTimerInterval);
+            brTimerInterval = null;
+            const q = brQuestions[brIndex];
+            const inputEl = document.getElementById('brInput');
+            const userAnswer = timeUp === true ? '' : (inputEl ? inputEl.value.trim() : '');
+            const isCorrect = !timeUp && userAnswer !== '' && answerMatches(userAnswer, q.correct);
+
+            const feedbackEl = document.getElementById('brFeedback');
+            if (inputEl) inputEl.disabled = true;
+
+            if (isCorrect) {
+                brCorrect++; brScore += 100; playCorrectSound();
+                if (feedbackEl) { feedbackEl.textContent = '✅ Benar!'; feedbackEl.className = 'br-feedback br-correct'; }
+            } else {
+                brWrong++; playWrongSound();
+                if (feedbackEl) { feedbackEl.textContent = `❌ ${timeUp ? 'Waktu habis!' : 'Kurang tepat.'} Jawaban: ${q.correct}`; feedbackEl.className = 'br-feedback br-wrong'; }
+            }
+
+            setTimeout(() => {
+                brIndex++;
+                if (brIndex >= brQuestions.length) endBrainRush();
+                else showBrainRushQuestion();
+            }, 1500);
+        }
+
+        function getBrainRushRating(correct) {
+            if (correct === 10) return 'MASTER MIND 🧠👑';
+            if (correct === 9) return 'EXCELLENT 🔥';
+            if (correct >= 7) return 'GREAT BRAIN 🧠';
+            if (correct >= 4) return 'GOOD JOB';
+            return 'KEEP PRACTICING';
+        }
+
+        function endBrainRush() {
+            isBrainRushMode = false;
+            lastGameWasBrainRush = true;
+            if (brTimerInterval) { clearInterval(brTimerInterval); brTimerInterval = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            document.getElementById('countdownOverlay').style.display = 'none';
+            playGameEndSound();
+            speakEnglish("Game Over!");
+
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'flex';
+            const meta = brainRushMeta[currentBrainRushRoom];
+            document.getElementById('endTitle').textContent = `⚡ ${meta.name} - CHALLENGE SELESAI!`;
+            document.getElementById('endScore').textContent = brScore;
+            const accuracy = Math.round((brCorrect / brQuestions.length) * 100);
+            document.getElementById('endDetails').textContent = `Benar: ${brCorrect} | Salah: ${brWrong} | Akurasi: ${accuracy}%`;
+            const config = brainRushConfig[currentBrainRushRoom];
+            const passed = brCorrect >= config.minCorrectToPass;
+            const statusEl = document.getElementById('endStatus');
+            if (passed) { statusEl.textContent = 'LULUS! 🎉'; statusEl.className = 'end-status status-lulus'; }
+            else { statusEl.textContent = 'BELUM TUNTAS 😢'; statusEl.className = 'end-status status-belum'; }
+            const ratingEl = document.getElementById('endRating');
+            ratingEl.style.display = 'block';
+            ratingEl.textContent = `🏅 Rating: ${getBrainRushRating(brCorrect)}`;
+
+            const idx = brainRushOrder.indexOf(currentBrainRushRoom);
+            const hasNext = idx < brainRushOrder.length - 1;
+            const nextUnlocked = passed && (brainRushHighest > idx || (passed));
+            document.getElementById('btnNextRoom').disabled = !passed || !hasNext;
+            saveBrainRushProgress(currentBrainRushRoom, passed);
+        }
+
+        async function saveBrainRushProgress(level, passed) {
+            try {
+                const data = await loadPlayerProgress(currentPlayerName);
+                const scores = data?.brainrush_scores || {};
+                scores[level] = { score: brScore, correct: brCorrect, total: brQuestions.length, passed };
+                let newHighest = brainRushHighest;
+                const idx = brainRushOrder.indexOf(level);
+                if (passed && idx < brainRushOrder.length - 1 && newHighest <= idx) newHighest = idx + 1;
+                await savePlayerProgress(currentPlayerName, { brainrush_highest: newHighest, brainrush_scores: scores });
+                brainRushHighest = newHighest;
+                renderBrainRush();
+            } catch (e) { console.error('Error saving brain rush progress:', e); }
+        }
+
         function endGame() {
             isGameActive = false;
+            lastGameWasBrainRush = false;
+            document.getElementById('endRating').style.display = 'none';
+            document.getElementById('endTitle').textContent = '🏁 GAME END!';
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
             document.getElementById('countdownOverlay').style.display = 'none';
@@ -791,6 +1287,10 @@
                 }
                 await savePlayerProgress(currentPlayerName, { highest_room_unlocked: newHighest, scores_per_room: scores });
                 highestUnlocked = newHighest;
+                if (currentRoomId === 'C' && passed) {
+                    brainRushUnlocked = true;
+                    renderBrainRush();
+                }
                 renderRooms();
             } catch (e) { console.error('Error saving progress:', e); }
         }
@@ -817,20 +1317,32 @@
                 try {
                     const progress = await loadPlayerProgress(name);
                     highestUnlocked = progress?.highest_room_unlocked || 1;
-                } catch (e) { highestUnlocked = 1; }
+                    const cRoomScore = progress?.scores_per_room?.['C'];
+                    brainRushUnlocked = !!(cRoomScore && cRoomScore.passed);
+                    brainRushHighest = progress?.brainrush_highest || 0;
+                } catch (e) { highestUnlocked = 1; brainRushUnlocked = false; brainRushHighest = 0; }
                 document.getElementById('headerAvatar').textContent = name.charAt(0).toUpperCase();
                 document.getElementById('headerPlayerName').textContent = name;
                 showMainContainer();
                 renderRooms();
+                renderBrainRush();
                 setupUlasanListener();
             });
             document.getElementById('playerNameInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') document.getElementById('btnLogin').click();
             });
-            document.getElementById('btnRetry').addEventListener('click', () => startRoom(currentRoomId));
+            document.getElementById('btnRetry').addEventListener('click', () => {
+                if (lastGameWasBrainRush) startBrainRush(currentBrainRushRoom);
+                else startRoom(currentRoomId);
+            });
             document.getElementById('btnNextRoom').addEventListener('click', () => {
-                const currentIndex = roomOrder.indexOf(currentRoomId);
-                if (currentIndex < roomOrder.length - 1) startRoom(roomOrder[currentIndex + 1]);
+                if (lastGameWasBrainRush) {
+                    const idx = brainRushOrder.indexOf(currentBrainRushRoom);
+                    if (idx < brainRushOrder.length - 1) startBrainRush(brainRushOrder[idx + 1]);
+                } else {
+                    const currentIndex = roomOrder.indexOf(currentRoomId);
+                    if (currentIndex < roomOrder.length - 1) startRoom(roomOrder[currentIndex + 1]);
+                }
             });
             document.getElementById('btnBackToMenu').addEventListener('click', showRoomMenu);
             setupFeedback();
