@@ -101,6 +101,72 @@
         .btn-primary::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255,255,255,0.3); border-radius: 50%; transform: translate(-50%,-50%); transition: width 0.6s, height 0.6s; }
         .btn-primary:hover::after { width: 300px; height: 300px; }
 
+        /* ===== AUTH TABS (fitur baru: Masuk / Daftar) ===== */
+        .auth-tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #f0f0f5; padding: 6px; border-radius: 50px; }
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .auth-tab.active { background: var(--gradient); color: white; box-shadow: 0 4px 15px rgba(108,92,231,0.4); }
+        .auth-panel { animation: fadeInPanel 0.3s ease; }
+        @keyframes fadeInPanel { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .auth-error { color: var(--accent); font-size: 14px; font-weight: bold; min-height: 18px; margin: 5px 0; }
+
+        .gender-select { display: flex; gap: 12px; margin: 15px 0; }
+        .gender-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+        }
+        .gender-option input { display: none; }
+        .gender-option:has(input:checked) { border-color: var(--primary); background: rgba(108,92,231,0.1); color: var(--primary); }
+
+        /* ===== MODAL INFORMASI ID KIBSA (fitur baru) ===== */
+        .id-modal-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .id-modal-card {
+            background: white;
+            border-radius: 25px;
+            padding: 35px 30px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: bounceIn 0.5s ease;
+        }
+        .id-modal-title { font-size: 26px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
+        .id-modal-avatar { font-size: 60px; margin-bottom: 10px; }
+        .id-modal-row { font-size: 16px; color: #333; margin: 6px 0; }
+        .id-modal-label { font-weight: bold; color: var(--primary); }
+        .id-modal-id-box { background: #f0f0ff; border: 3px dashed var(--primary); border-radius: 15px; padding: 15px; margin: 18px 0; }
+        .id-modal-id-label { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 6px; }
+        .id-modal-id-value { font-size: 26px; font-weight: bold; color: var(--primary); letter-spacing: 2px; word-break: break-all; }
+        .id-modal-warning { background: #fff4e0; border-left: 4px solid var(--orange); color: #8a5a00; font-size: 13px; font-weight: bold; padding: 12px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
+
         /* Footer */
         .footer {
             position: fixed;
@@ -385,10 +451,55 @@
         </div>
         <div class="game-title">GAME EDUKASI ANAK</div>
         <div class="game-subtitle">Petualangan Belajar Seru bersama KIBSA</div>
-        <input type="text" id="playerNameInput" class="login-input" placeholder="Masukkan Nama Lengkap Kamu" maxlength="30" autocomplete="off">
-        <input type="text" id="playerIdInput" class="login-input" placeholder="Masukkan No. ID KIBSA" maxlength="30" autocomplete="off">
-        <button class="btn-primary" id="btnLogin">🚀 Mulai Belajar</button>
-        <div style="margin-top:15px; font-size:14px; color:#999;">Gunakan Nomor ID KIBSA kamu agar progres belajar tidak tertukar!</div>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tabLoginBtn" type="button">🎮 MASUK</button>
+            <button class="auth-tab" id="tabRegisterBtn" type="button">📝 DAFTAR</button>
+        </div>
+
+        <!-- FORM MASUK (LOGIN) -->
+        <div id="loginFormPanel" class="auth-panel">
+            <input type="text" id="playerNameInput" class="login-input" placeholder="Masukkan Nama Lengkap Kamu" maxlength="30" autocomplete="off">
+            <input type="text" id="playerIdInput" class="login-input" placeholder="Masukkan No. ID KIBSA" maxlength="30" autocomplete="off">
+            <div class="auth-error" id="loginErrorMsg"></div>
+            <button class="btn-primary" id="btnLogin">🎮 Masuk ke Game</button>
+            <div style="margin-top:15px; font-size:14px; color:#999;">Gunakan Nomor ID KIBSA kamu agar progres belajar tidak tertukar!</div>
+        </div>
+
+        <!-- FORM DAFTAR (REGISTRASI) -->
+        <div id="registerFormPanel" class="auth-panel" style="display:none;">
+            <input type="text" id="regNameInput" class="login-input" placeholder="Masukkan Nama Lengkap Kamu" maxlength="30" autocomplete="off">
+            <input type="text" id="regBirthInput" class="login-input" placeholder="Tanggal Lahir (DD/MM/YYYY)" maxlength="10" autocomplete="off">
+            <div class="gender-select" id="regGenderSelect">
+                <label class="gender-option">
+                    <input type="radio" name="regGender" value="L">
+                    <span>👦 Laki-laki</span>
+                </label>
+                <label class="gender-option">
+                    <input type="radio" name="regGender" value="P">
+                    <span>👧 Perempuan</span>
+                </label>
+            </div>
+            <div class="auth-error" id="registerErrorMsg"></div>
+            <button class="btn-primary" id="btnRegister">🚀 Daftar & Buat ID KIBSA</button>
+            <div style="margin-top:15px; font-size:14px; color:#999;">Data ini digunakan untuk membuat ID KIBSA unikmu.</div>
+        </div>
+    </div>
+
+    <!-- MODAL INFORMASI ID KIBSA SETELAH DAFTAR -->
+    <div id="idInfoModal" class="id-modal-overlay">
+        <div class="id-modal-card">
+            <div class="id-modal-title">🎉 Pendaftaran Berhasil!</div>
+            <div class="id-modal-avatar" id="idModalAvatar">👦</div>
+            <div class="id-modal-row"><span class="id-modal-label">Nama:</span> <span id="idModalName"></span></div>
+            <div class="id-modal-row"><span class="id-modal-label">Gender:</span> <span id="idModalGender"></span></div>
+            <div class="id-modal-id-box">
+                <div class="id-modal-id-label">NOMOR ID KIBSA KAMU</div>
+                <div class="id-modal-id-value" id="idModalId"></div>
+            </div>
+            <div class="id-modal-warning">⚠️ INGAT & CATAT NOMOR ID KIBSA KAMU! Gunakan No. ID ini untuk masuk kembali agar progres belajarmu tersimpan!</div>
+            <button class="btn-primary" id="btnGoToGame">➡️ Lanjut ke Game</button>
+        </div>
     </div>
 
     <div class="footer">
@@ -478,6 +589,7 @@
         // State
         let currentPlayerName = '';
         let currentPlayerId = '';
+        let currentPlayerGender = 'L';
         let currentRoomId = 1;
         let highestUnlocked = 1;
         let questions = [];
@@ -1309,32 +1421,96 @@
             });
         }
 
+        // ===== HELPER AUTH: generate ID KIBSA & masuk ke dashboard =====
+        function pad2(n) { return n.toString().padStart(2, '0'); }
+
+        async function getDailyRegistrationNumber() {
+            const now = new Date();
+            const dayKey = `${now.getFullYear()}${pad2(now.getMonth() + 1)}${pad2(now.getDate())}`;
+            const counterRef = db.ref('gea_meta/reg_counter/' + dayKey);
+            const result = await counterRef.transaction(current => (current || 0) + 1);
+            return result.snapshot.val();
+        }
+
+        function generateKibsaId(regNumber, birthDateStr) {
+            const now = new Date();
+            const regPart = pad2(regNumber % 100);
+            const regDatePart = `${pad2(now.getMonth() + 1)}${pad2(now.getDate())}${pad2(now.getFullYear() % 100)}`;
+            const [bd, bm, by] = birthDateStr.split('/');
+            const birthPart = `${pad2(parseInt(bd, 10))}${pad2(parseInt(bm, 10))}${by.slice(-2)}`;
+            return `${regPart}${regDatePart}${birthPart}`;
+        }
+
+        function isValidBirthDate(str) {
+            const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(str);
+            if (!match) return false;
+            const dd = parseInt(match[1], 10), mm = parseInt(match[2], 10), yyyy = parseInt(match[3], 10);
+            if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return false;
+            if (yyyy < 1990 || yyyy > new Date().getFullYear()) return false;
+            return true;
+        }
+
+        function genderAvatarEmoji(gender) { return gender === 'P' ? '👧' : '👦'; }
+        function genderLabel(gender) { return gender === 'P' ? 'Perempuan (Girl)' : 'Laki-laki (Boy)'; }
+
+        async function enterDashboard(name, id, gender) {
+            currentPlayerName = name;
+            currentPlayerId = id;
+            currentPlayerGender = gender;
+            initAudio();
+            try {
+                const progress = await loadPlayerProgress(id);
+                highestUnlocked = progress?.highest_room_unlocked || 1;
+                const cRoomScore = progress?.scores_per_room?.['C'];
+                brainRushUnlocked = !!(cRoomScore && cRoomScore.passed);
+                brainRushHighest = progress?.brainrush_highest || 0;
+                if (!currentPlayerGender) currentPlayerGender = progress?.gender || 'L';
+            } catch (e) { highestUnlocked = 1; brainRushUnlocked = false; brainRushHighest = 0; }
+            document.getElementById('headerAvatar').textContent = genderAvatarEmoji(currentPlayerGender);
+            document.getElementById('headerPlayerName').textContent = `${name} | ID: ${id}`;
+            showMainContainer();
+            renderRooms();
+            renderBrainRush();
+            setupUlasanListener();
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Switch Tab Masuk / Daftar ---
+            const tabLoginBtn = document.getElementById('tabLoginBtn');
+            const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+            const loginFormPanel = document.getElementById('loginFormPanel');
+            const registerFormPanel = document.getElementById('registerFormPanel');
+            tabLoginBtn.addEventListener('click', () => {
+                tabLoginBtn.classList.add('active'); tabRegisterBtn.classList.remove('active');
+                loginFormPanel.style.display = 'block'; registerFormPanel.style.display = 'none';
+                document.getElementById('loginErrorMsg').textContent = '';
+            });
+            tabRegisterBtn.addEventListener('click', () => {
+                tabRegisterBtn.classList.add('active'); tabLoginBtn.classList.remove('active');
+                registerFormPanel.style.display = 'block'; loginFormPanel.style.display = 'none';
+                document.getElementById('registerErrorMsg').textContent = '';
+            });
+
+            // --- TAB MASUK (LOGIN) ---
             document.getElementById('btnLogin').addEventListener('click', async () => {
+                const errEl = document.getElementById('loginErrorMsg');
+                errEl.textContent = '';
                 const name = document.getElementById('playerNameInput').value.trim();
                 const id = document.getElementById('playerIdInput').value.trim();
-                if (!name) { alert('Masukkan nama kamu dulu ya! 😊'); return; }
-                if (!id) { alert('Masukkan No. ID KIBSA kamu dulu ya! 😊'); return; }
-                currentPlayerName = name;
-                currentPlayerId = id;
-                initAudio();
+                if (!name) { errEl.textContent = 'Masukkan nama kamu dulu ya! 😊'; return; }
+                if (!id) { errEl.textContent = 'Masukkan No. ID KIBSA kamu dulu ya! 😊'; return; }
                 try {
                     const progress = await loadPlayerProgress(id);
-                    highestUnlocked = progress?.highest_room_unlocked || 1;
-                    const cRoomScore = progress?.scores_per_room?.['C'];
-                    brainRushUnlocked = !!(cRoomScore && cRoomScore.passed);
-                    brainRushHighest = progress?.brainrush_highest || 0;
-                } catch (e) { highestUnlocked = 1; brainRushUnlocked = false; brainRushHighest = 0; }
-                try {
-                    await savePlayerProgress(id, { name: name, player_id: id });
-                } catch (e) { console.error('Error saving player identity:', e); }
-                document.getElementById('headerAvatar').textContent = name.charAt(0).toUpperCase();
-                document.getElementById('headerPlayerName').textContent = `${name} (ID: ${id})`;
-                showMainContainer();
-                renderRooms();
-                renderBrainRush();
-                setupUlasanListener();
+                    if (!progress) {
+                        errEl.textContent = 'ID KIBSA tidak ditemukan! Silakan periksa kembali atau daftar akun baru.';
+                        return;
+                    }
+                    await enterDashboard(progress.name || name, id, progress.gender);
+                } catch (e) {
+                    console.error('Error saat login:', e);
+                    errEl.textContent = 'Terjadi kesalahan saat memuat data. Coba lagi.';
+                }
             });
             document.getElementById('playerIdInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') document.getElementById('btnLogin').click();
@@ -1342,6 +1518,52 @@
             document.getElementById('playerNameInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') document.getElementById('btnLogin').click();
             });
+
+            // --- TAB DAFTAR (REGISTRASI) ---
+            document.getElementById('btnRegister').addEventListener('click', async () => {
+                const errEl = document.getElementById('registerErrorMsg');
+                errEl.textContent = '';
+                const name = document.getElementById('regNameInput').value.trim();
+                const birth = document.getElementById('regBirthInput').value.trim();
+                const genderInput = document.querySelector('input[name="regGender"]:checked');
+                if (!name) { errEl.textContent = 'Masukkan nama lengkap kamu dulu ya! 😊'; return; }
+                if (!isValidBirthDate(birth)) { errEl.textContent = 'Format tanggal lahir salah! Gunakan DD/MM/YYYY.'; return; }
+                if (!genderInput) { errEl.textContent = 'Pilih jenis kelamin kamu dulu ya! 😊'; return; }
+                const gender = genderInput.value;
+                try {
+                    const regNumber = await getDailyRegistrationNumber();
+                    const newId = generateKibsaId(regNumber, birth);
+                    await savePlayerProgress(newId, {
+                        name: name,
+                        player_id: newId,
+                        birth_date: birth,
+                        gender: gender,
+                        highest_room_unlocked: 1,
+                        created_at: new Date().toISOString()
+                    });
+                    document.getElementById('idModalAvatar').textContent = genderAvatarEmoji(gender);
+                    document.getElementById('idModalName').textContent = name;
+                    document.getElementById('idModalGender').textContent = genderLabel(gender);
+                    document.getElementById('idModalId').textContent = newId;
+                    document.getElementById('idInfoModal').style.display = 'flex';
+                    document.getElementById('idInfoModal').dataset.pendingName = name;
+                    document.getElementById('idInfoModal').dataset.pendingId = newId;
+                    document.getElementById('idInfoModal').dataset.pendingGender = gender;
+                } catch (e) {
+                    console.error('Error saat mendaftar:', e);
+                    errEl.textContent = 'Terjadi kesalahan saat mendaftar. Coba lagi.';
+                }
+            });
+
+            document.getElementById('btnGoToGame').addEventListener('click', async () => {
+                const modal = document.getElementById('idInfoModal');
+                const name = modal.dataset.pendingName;
+                const id = modal.dataset.pendingId;
+                const gender = modal.dataset.pendingGender;
+                modal.style.display = 'none';
+                await enterDashboard(name, id, gender);
+            });
+
             document.getElementById('btnRetry').addEventListener('click', () => {
                 if (lastGameWasBrainRush) startBrainRush(currentBrainRushRoom);
                 else startRoom(currentRoomId);
